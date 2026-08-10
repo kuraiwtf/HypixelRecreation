@@ -2,6 +2,7 @@ package net.swofty.type.galatea.gui;
 
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.Material;
+import net.swofty.type.galatea.gui.david.GUIDavidHuntingTools;
 import net.swofty.type.generic.gui.inventory.ItemStackCreator;
 import net.swofty.type.generic.gui.v2.*;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
@@ -23,11 +24,11 @@ public class GUIDavid extends StatelessView {
                 Material.GOLDEN_AXE,
                 1,
                 "§7You don't know which Hunting Gear to",
-                "§7buy, or how to use them? I’ll",
-                "§7explain everything!",
+                "§7buy, or how to use them? I’ll explain",
+                "§7everything!",
                 "",
-                "§eClick to open!"
-        ));
+                "§eClick to view!"
+        ), (_, context) -> context.push(new GUIDavidHuntingTools()));
         layout.slot(22, ItemStackCreator.getStack(
                 "§aHunting Lessons",
                 Material.LEAD,
