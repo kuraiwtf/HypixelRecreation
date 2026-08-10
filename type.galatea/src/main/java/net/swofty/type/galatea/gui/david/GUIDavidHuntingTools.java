@@ -22,8 +22,8 @@ public class GUIDavidHuntingTools extends StatelessView {
 
         layout.slot(11, ItemStacks.head(
                 "d61b87f1a1040a8b922ca51be9c0bc6d6fc71ba5d745c6bf659cbd0d9a9cf4fc",
-                "<5>Pocket Black Holes",
                 """
+                        "<5>Pocket Black Holes",
                         <7>Obtained from <b>Albert <7>in the Village.
                         
                         <5>Pocket Black Holes <7>are deployables
@@ -37,8 +37,8 @@ public class GUIDavidHuntingTools extends StatelessView {
 
         layout.slot(13, ItemStacks.item(
                 Material.COBWEB,
-                "<9>Fishing Nets",
                 """
+                        "<9>Fishing Nets",
                         <7>Obtained from <b>Jaeger <7>and <a>Collections<7>.
                         
                         <7>Many creatures live in the water,
@@ -55,8 +55,8 @@ public class GUIDavidHuntingTools extends StatelessView {
 
         layout.slot(15, ItemStacks.item(
                 Material.LEAD,
-                "<6>Lassos",
                 """
+                        "<6>Lassos",
                         <7>Obtained from <b>Auryon <7>and <a>Collections<7>.
                         
                         <2>Lassos <7>are particularly useful to
@@ -72,8 +72,8 @@ public class GUIDavidHuntingTools extends StatelessView {
 
         layout.slot(29, ItemStacks.item(
                 Material.GOLDEN_AXE,
-                "<5>Hunting Axes",
                 """
+                        "<5>Hunting Axes",
                         <7>Obtained from <b>Alan <7>and <a>Collections<7>.
                         
                         <7>Hunting Weapons go hand in hand with
@@ -90,8 +90,8 @@ public class GUIDavidHuntingTools extends StatelessView {
 
         layout.slot(31, ItemStacks.item(
                 Material.PAPER,
-                "<6>Hunting Traps",
                 """
+                        "<6>Hunting Traps",
                         <7>Obtained from <b>Alan <7>and <a>Collections<7>.
                         
                         <7>As long as a <c>Combat <7>creature can
@@ -105,8 +105,9 @@ public class GUIDavidHuntingTools extends StatelessView {
         layout.slot(33, ItemStacks.item(
                 Material.PAPER,
                 """
+                        <d>Salts
                         <7>Obtained from harvesting §dBerry
-                        §dBushes <7>and <a>Collections<7>.
+                        <d>Bushes <7>and <a>Collections<7>.
                         
                         <d>Salts <7>are consumables that grant
                         <7>you various effects, such as
