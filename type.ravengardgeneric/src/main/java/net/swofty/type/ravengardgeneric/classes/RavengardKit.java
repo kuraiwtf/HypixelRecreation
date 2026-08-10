@@ -1,10 +1,9 @@
 package net.swofty.type.ravengardgeneric.classes;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.inventory.PlayerInventoryUtils;
+import net.swofty.commons.text.Text;
 import net.swofty.type.ravengardgeneric.gui.RavengardItems;
 
 /**
@@ -37,8 +36,6 @@ public record RavengardKit(String chestId, String legsId, String bootsId) {
     private static final int OFFSET_ABILITY_ONE = 0x813500;
     private static final int OFFSET_ABILITY_TWO = 0x934700;
 
-    private static final TextColor KEYBIND_COLOR = TextColor.color(0xF0F05C);
-
     public static RavengardKit forClass(RavengardClass value) {
         // Only the Knight kit has been captured; the others reuse its shape until they are.
         return switch (value) {
@@ -55,16 +52,13 @@ public record RavengardKit(String chestId, String legsId, String bootsId) {
         boolean first = slot == SLOT_ABILITY_ONE;
         return RavengardItems.button(value)
                 .hoverColor(first ? OFFSET_ABILITY_ONE : OFFSET_ABILITY_TWO)
-                .label("Ability: " + value.getDisplayName())
+                .label(Text.of("Ability: {}", value.getDisplayName()))
                 .lore(value.getHighlightedDescription())
                 .blankLine()
-                .lore("§7Cooldown: §e" + value.getCooldownText())
+                .lore(Text.of("<7>Cooldown: <e>{}", value.getCooldownText()))
                 .blankLine()
-                .lore(Component.text("Press ")
-                        .append(Component.keybind(first ? "key.drop" : "key.swapOffhand"))
-                        .append(Component.text(" to use!"))
-                        .color(KEYBIND_COLOR)
-                        .decoration(TextDecoration.ITALIC, false))
+                .lore(Text.of("<#f0f05c>Press {} to use!",
+                        Component.keybind(first ? "key.drop" : "key.swapOffhand")))
                 .build();
     }
 }

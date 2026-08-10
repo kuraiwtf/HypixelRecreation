@@ -2,11 +2,12 @@ package net.swofty.velocity.gamemanager;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import net.kyori.adventure.text.Component;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.protocol.objects.proxy.from.GivePlayersOriginTypeProtocol;
 import net.swofty.commons.protocol.objects.proxy.from.PlayerSwitchedProtocol;
+import net.swofty.commons.text.Text;
 import net.swofty.velocity.SkyBlockVelocity;
+import net.swofty.velocity.text.ProxyText;
 import net.swofty.commons.redis.RedisClient;
 
 import java.util.Map;
@@ -127,12 +128,12 @@ public record TransferHandler(Player player) {
 				}
 
 				if (destination == null) {
-					player.sendMessage(Component.text("§cThere are no lobby servers available right now."));
+					player.sendMessage(Text.of("<c>There are no lobby servers available right now."));
 					return;
 				}
 
 				afkOriginLobbyType.remove(uuid);
-				player.sendMessage(Component.text("§7Sending to server " + destination.displayName() + "..."));
+				player.sendMessage(Text.of("<7>Sending to server {}...", destination.displayName()));
 				player.createConnectionRequest(destination.registeredServer()).connectWithIndication();
 			} finally {
 				afkReturnInProgress.remove(uuid);
@@ -159,7 +160,7 @@ public record TransferHandler(Player player) {
 			playersOriginServer.remove(player);
 
 			GameManager.GameServer manualPickAsGame = GameManager.getFromUUID(serverUUID);
-			player.sendMessage(Component.text("§7Sending to server " + manualPickAsGame.displayName() + "..."));
+			player.sendMessage(Text.of("<7>Sending to server {}...", manualPickAsGame.displayName()));
 			player.createConnectionRequest(manualPick).connectWithIndication();
 
 			RedisClient.requestServer(originServerUUID,
@@ -183,7 +184,7 @@ public record TransferHandler(Player player) {
 			if (server == null) {
 				playersGoalServerType.remove(player);
 				playersOriginServer.remove(player);
-				player.disconnect(Component.text("§cThere are no Hypixel (type=" + type.name() + ") servers available at the moment."));
+				ProxyText.disconnect(player, "<c>There are no Hypixel (type={}) servers available at the moment.", type.name());
 				return;
 			}
 
@@ -204,7 +205,7 @@ public record TransferHandler(Player player) {
 			playersOriginServer.remove(player);
 			playersGoalServerType.remove(player);
 
-			player.sendMessage(Component.text("§7Sending to server " + server.displayName() + "..."));
+			player.sendMessage(Text.of("<7>Sending to server {}...", server.displayName()));
 			player.createConnectionRequest(server.registeredServer()).connectWithIndication();
 
 			RedisClient.requestServer(originServerUUID,
@@ -220,11 +221,11 @@ public record TransferHandler(Player player) {
 
 		GameManager.GameServer server = BalanceConfigurations.getServerFor(player, type);
 		if (server == null) {
-			player.sendMessage(Component.text("§cThere are no Hypixel (type=" + type.name() + ") servers available at the moment."));
+			player.sendMessage(Text.of("<c>There are no Hypixel (type={}) servers available at the moment.", type.name()));
 			return;
 		}
 
-		player.sendMessage(Component.text("§7Sending to server " + server.displayName() + "..."));
+		player.sendMessage(Text.of("<7>Sending to server {}...", server.displayName()));
 		transferTo(server.registeredServer());
 	}
 

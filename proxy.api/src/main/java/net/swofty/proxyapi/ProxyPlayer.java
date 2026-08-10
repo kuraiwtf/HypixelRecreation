@@ -8,6 +8,7 @@ import net.swofty.commons.ServerType;
 import net.swofty.commons.UnderstandableProxyServer;
 import net.swofty.commons.protocol.objects.proxy.to.PlayerHandlerProtocol;
 import net.swofty.commons.redis.RedisClient;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.impl.ProxyUnderstandableEvent;
 import org.json.JSONObject;
 
@@ -35,8 +36,16 @@ public record ProxyPlayer(UUID uuid) {
                         Map.of("message", JSONComponentSerializer.json().serialize(message))));
     }
 
+    public void sendMessage(Text message) {
+        sendMessage(message.asComponent());
+    }
+
     public void sendMessage(String message) {
-        sendMessage(Component.text(message));
+        sendMessage(Text.read(message));
+    }
+
+    public void sendMessage(String markup, Object... arguments) {
+        sendMessage(Text.of(markup, arguments));
     }
 
     public void teleport(Pos pos) {
@@ -92,12 +101,12 @@ public record ProxyPlayer(UUID uuid) {
                     if (!response.success()) {
                         waitingForTransferComplete.remove(uuid);
                         future.completeExceptionally(new IllegalStateException(response.error()));
-                        sendMessage("§cUnable to transfer you: " + response.error());
+                        sendMessage(Text.of("<c>Unable to transfer you: {}", response.error()));
                     }
                 })).exceptionally(error -> {
             waitingForTransferComplete.remove(uuid);
             future.completeExceptionally(error);
-            sendMessage("§cUnable to transfer you: " + rootMessage(error));
+            sendMessage(Text.of("<c>Unable to transfer you: {}", rootMessage(error)));
             return null;
         });
         return future;
@@ -106,7 +115,7 @@ public record ProxyPlayer(UUID uuid) {
     public void transferTo(ServerType serverType) {
         resolveServer(serverType).thenAccept(this::transferToWithIndication)
                 .exceptionally(error -> {
-                    sendMessage("§cUnable to transfer you: " + rootMessage(error));
+                    sendMessage(Text.of("<c>Unable to transfer you: {}", rootMessage(error)));
                     return null;
                 });
     }

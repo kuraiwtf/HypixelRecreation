@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import net.swofty.commons.text.Text;
 
 public class BedWarsGameTabListModule extends TablistModule {
 
@@ -54,7 +55,7 @@ public class BedWarsGameTabListModule extends TablistModule {
                 Component displayName = shouldObfuscate
                         ? Component.text(UUID.randomUUID().toString().replaceAll("-", "").substring(0, new Random().nextInt(10) + 4), Style.style(TextDecoration.OBFUSCATED))
                         : bedWarsPlayer.getColouredName();
-                entries[index++] = new TablistEntry(displayName, skin);
+                entries[index++] = new TablistEntry(Text.of("{}", displayName), skin);
             }
             return List.of(entries);
         } else if (game.getState().isInProgress()) {
@@ -72,7 +73,7 @@ public class BedWarsGameTabListModule extends TablistModule {
                 } else {
                     skin = new CustomTablistSkin(playerSkin);
                 }
-                entries[index++] = new TablistEntry(displayName, skin);
+                entries[index++] = new TablistEntry(Text.of("{}", displayName), skin);
             }
             return List.of(entries);
         }

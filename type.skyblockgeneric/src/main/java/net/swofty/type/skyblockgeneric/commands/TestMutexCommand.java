@@ -30,8 +30,8 @@ public class TestMutexCommand extends HypixelCommand {
             String key = context.get(globalKey);
             SkyBlockPlayer player = (SkyBlockPlayer) sender;
 
-            player.sendMessage("§eTesting mutex with global key: §f" + key);
-            player.sendMessage("§7Performing simple read operation...");
+            player.sendMessage("<e>Testing mutex with global key: <f>{}", key);
+            player.sendMessage("<7>Performing simple read operation...");
 
             testMutexRead(player, key);
         }, globalKey);
@@ -43,15 +43,15 @@ public class TestMutexCommand extends HypixelCommand {
             String op = context.get(operation);
             SkyBlockPlayer player = (SkyBlockPlayer) sender;
 
-            player.sendMessage("§eTesting mutex with global key: §f" + key);
-            player.sendMessage("§7Operation: §f" + op);
+            player.sendMessage("<e>Testing mutex with global key: <f>{}", key);
+            player.sendMessage("<7>Operation: <f>{}", op);
 
             switch (op.toLowerCase()) {
                 case "read" -> testMutexRead(player, key);
                 case "write" -> testMutexWrite(player, key);
                 case "increment" -> testMutexIncrement(player, key);
                 case "stress" -> testMutexStress(player, key);
-                default -> player.sendMessage("§cInvalid operation! Use: read, write, increment, stress");
+                default -> player.sendMessage("<c>Invalid operation! Use: read, write, increment, stress");
             }
         }, globalKey, operation);
     }
@@ -67,16 +67,16 @@ public class TestMutexCommand extends HypixelCommand {
                 testCoop,
                 SkyBlockDataHandler.Data.BANK_DATA,
                 (DatapointBankData.BankData bankData) -> {
-                    player.sendMessage("§aSuccessfully read bank data!");
-                    player.sendMessage("§7Current balance: §6" + bankData.getAmount());
-                    player.sendMessage("§7Balance limit: §6" + bankData.getBalanceLimit());
-                    player.sendMessage("§7Transactions: §f" + bankData.getTransactions().size());
+                    player.sendMessage("<a>Successfully read bank data!");
+                    player.sendMessage("<7>Current balance: <6>{}", bankData.getAmount());
+                    player.sendMessage("<7>Balance limit: <6>{}", bankData.getBalanceLimit());
+                    player.sendMessage("<7>Transactions: <f>{}", bankData.getTransactions().size());
 
                     // Return null to indicate no changes (read-only operation)
                     return null;
                 },
                 () -> {
-                    player.sendMessage("§cFailed to read data with mutex!");
+                    player.sendMessage("<c>Failed to read data with mutex!");
                 }
         );
     }
@@ -97,14 +97,14 @@ public class TestMutexCommand extends HypixelCommand {
                             "MutexTest"
                     ));
 
-                    player.sendMessage("§aSuccessfully wrote test transaction!");
-                    player.sendMessage("§7Added transaction: +1000 coins");
-                    player.sendMessage("§7Total transactions: §f" + bankData.getTransactions().size());
+                    player.sendMessage("<a>Successfully wrote test transaction!");
+                    player.sendMessage("<7>Added transaction: +1000 coins");
+                    player.sendMessage("<7>Total transactions: <f>{}", bankData.getTransactions().size());
 
                     return bankData; // Return modified data
                 },
                 () -> {
-                    player.sendMessage("§cFailed to write data with mutex!");
+                    player.sendMessage("<c>Failed to write data with mutex!");
                 }
         );
     }
@@ -121,20 +121,20 @@ public class TestMutexCommand extends HypixelCommand {
                     double oldAmount = bankData.getAmount();
                     bankData.addAmount(100.0);
 
-                    player.sendMessage("§aSuccessfully incremented bank balance!");
-                    player.sendMessage("§7Old balance: §6" + oldAmount);
-                    player.sendMessage("§7New balance: §6" + bankData.getAmount());
+                    player.sendMessage("<a>Successfully incremented bank balance!");
+                    player.sendMessage("<7>Old balance: <6>{}", oldAmount);
+                    player.sendMessage("<7>New balance: <6>{}", bankData.getAmount());
 
                     return bankData;
                 },
                 () -> {
-                    player.sendMessage("§cFailed to increment data with mutex!");
+                    player.sendMessage("<c>Failed to increment data with mutex!");
                 }
         );
     }
 
     private void testMutexStress(SkyBlockPlayer player, String globalKey) {
-        player.sendMessage("§eStarting stress test with 10 concurrent operations...");
+        player.sendMessage("<e>Starting stress test with 10 concurrent operations...");
 
         DataMutexService mutexService = new DataMutexService();
         List<UUID> testCoop = List.of(player.getUuid());
@@ -160,17 +160,17 @@ public class TestMutexCommand extends HypixelCommand {
                             double newAmount = currentAmount + 10.0;
                             bankData.setAmount(newAmount);
 
-                            player.sendMessage("§7Operation " + operationNum + ": §6" + currentAmount + " → §6" + newAmount);
+                            player.sendMessage("<7>Operation {}: <6>{} → <6>{}", operationNum, currentAmount, newAmount);
 
                             return bankData;
                         },
                         () -> {
-                            player.sendMessage("§cOperation " + operationNum + " failed!");
+                            player.sendMessage("<c>Operation {} failed!", operationNum);
                         }
                 );
             });
         }
 
-        player.sendMessage("§aStress test initiated! Watch for operation results...");
+        player.sendMessage("<a>Stress test initiated! Watch for operation results...");
     }
 }

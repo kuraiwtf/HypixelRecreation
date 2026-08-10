@@ -1,7 +1,6 @@
 package net.swofty.type.skyblockgeneric.event.actions.player;
 
 import net.minestom.server.event.player.PlayerSpawnEvent;
-import net.swofty.commons.StringUtility;
 import net.swofty.proxyapi.ProxyPlayer;
 import net.swofty.type.generic.event.EventNodes;
 import net.swofty.type.generic.event.HypixelEventClass;
@@ -52,13 +51,12 @@ public class ActionPlayerBankAddInterest implements HypixelEventClass {
         bankData.addTransaction(new DatapointBankData.Transaction(
                 System.currentTimeMillis(),
                 totalToGive,
-                "§cBank Interest"
+                "<c>Bank Interest"
         ));
         player.getSkyblockDataHandler().get(net.swofty.type.skyblockgeneric.data.SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).setValue(bankData);
 
-        player.sendMessage("§b------------------------------------------------");
-        player.sendMessage("§aYou have just received §6" +
-                StringUtility.commaify(totalToGive) + " coins§a as bank interest!");
-        player.sendMessage("§b------------------------------------------------");
+        player.sendMessage("<b>------------------------------------------------");
+        player.sendMessage("<a>You have just received <6>{:,} coins<a> as bank interest!", totalToGive);
+        player.sendMessage("<b>------------------------------------------------");
     }
 }

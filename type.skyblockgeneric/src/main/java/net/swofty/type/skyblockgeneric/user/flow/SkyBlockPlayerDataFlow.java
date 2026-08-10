@@ -207,14 +207,14 @@ public final class SkyBlockPlayerDataFlow {
                 CustomGroups.staffMembers.add(player);
             }
 
-            player.sendMessage("§7 ");
-            player.sendMessage("§aYou are playing on profile: §e" + player.getSkyblockDataHandler().get(
+            player.sendMessage("<7> ");
+            player.sendMessage("<a>You are playing on profile: <e>{}", player.getSkyblockDataHandler().get(
                     SkyBlockDataHandler.Data.PROFILE_NAME, DatapointString.class).getValue());
-            player.sendMessage("§8Profile ID: " + player.getProfiles().getCurrentlySelected());
+            player.sendMessage("<8>Profile ID: {}", player.getProfiles().getCurrentlySelected());
 
             UUID islandUuid = player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.ISLAND_UUID, DatapointUUID.class).getValue();
             if (!islandUuid.equals(player.getProfiles().getCurrentlySelected())) {
-                player.sendMessage("§8Island ID: " + islandUuid);
+                player.sendMessage("<8>Island ID: {}", islandUuid);
             }
             player.sendMessage(" ");
 

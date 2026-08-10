@@ -75,12 +75,12 @@ public class ElectionManager {
     private static void initializeFirstElection() {
         int currentYear = SkyBlockCalendar.getYear();
         electionData.setCurrentMayor(SkyBlockMayor.COLE.name());
-        electionData.setCurrentMayorColor(ElectionData.colorForIndex(4));
+        electionData.setCurrentMayorColor(ElectionData.wireColorForIndex(4));
         electionData.setCurrentMayorPerks(Arrays.stream(SkyBlockMayor.COLE.getAllPerks()).map(Enum::name).toList());
         electionData.setMayorElectedYear(currentYear);
         electionData.setCurrentMinister(SkyBlockMayor.DIAZ.name());
         electionData.setMinisterPerk(SkyBlockMayor.Perk.STOCK_EXCHANGE.name());
-        electionData.setCurrentMinisterColor(ElectionData.colorForIndex(0));
+        electionData.setCurrentMinisterColor(ElectionData.wireColorForIndex(0));
     }
 
     public static void onElectionStart() {

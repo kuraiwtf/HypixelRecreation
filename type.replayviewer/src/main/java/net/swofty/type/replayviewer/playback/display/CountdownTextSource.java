@@ -1,5 +1,7 @@
 package net.swofty.type.replayviewer.playback.display;
 
+import net.swofty.commons.text.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class CountdownTextSource implements DynamicTextSource {
         this.startTick = config.getMeta("startTick", 0);
         this.endTick = config.getMeta("endTick", 0);
         this.eventName = config.getMeta("eventName", "Event");
-        this.completedText = config.getMeta("completedText", List.of("§aCompleted!"));
+        this.completedText = config.getMeta("completedText", List.of("<a>Completed!"));
     }
 
     @Override
@@ -39,8 +41,8 @@ public class CountdownTextSource implements DynamicTextSource {
         int remainingSeconds = remainingTicks / 20;
 
         List<String> result = new ArrayList<>();
-        result.add("§e" + eventName);
-        result.add("§7in §f" + formatTime(remainingSeconds));
+        result.add(Text.of("<e>{}", eventName).serialize());
+        result.add(Text.of("<7>in <f>{}", formatTime(remainingSeconds)).serialize());
 
         return result;
     }

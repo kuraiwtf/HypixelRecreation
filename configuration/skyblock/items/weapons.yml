@@ -928,7 +928,7 @@ items:
     default_statistics:
       damage: 35
     lore:
-      - Deals §a+100% §7damage to Ender
+      - Deals <a>+100% <7>damage to Ender
       - Dragons, Endermites, and Endermen.
     components:
       - id: SELLABLE
@@ -1482,9 +1482,9 @@ items:
       ferocity: 30
       intelligence: 350
     lore:
-      - Deals §c+50% §7damage to §8☠ Wither §7mobs.
-      - Grants §c+1 ❁ Damage §7and §a+2 §b✎
-      - §bIntelligence §7per §cCatacombs §7level.
+      - Deals <c>+50% <7>damage to <8>☠ Wither <7>mobs.
+      - Grants <c>+1 ❁ Damage <7>and <a>+2 <b>✎
+      - <b>Intelligence <7>per <c>Catacombs <7>level.
     components:
       - id: ABILITY
         abilities:
@@ -2540,10 +2540,10 @@ items:
     default_statistics:
       damage: 30
     lore:
-      - Deals §a+100% §7damage to Silverfish,
+      - Deals <a>+100% <7>damage to Silverfish,
       - Spiders, and Cave Spiders.
       - ''
-      - §4This item is Arachnal Ж!
+      - <4>This item is Arachnal Ж!
     components:
       - id: SELLABLE
         value: 5.0
@@ -3214,7 +3214,7 @@ items:
     default_statistics:
       damage: 30
     lore:
-      - Deals §a+100% §7damage to Zombies,
+      - Deals <a>+100% <7>damage to Zombies,
       - Skeletons, Zombie Pigmen, and
       - Withers.
     components:

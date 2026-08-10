@@ -1,5 +1,6 @@
 package net.swofty.type.ravengardgeneric.gui;
 
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.gui.v2.DefaultState;
 import net.swofty.type.generic.gui.v2.ViewLayout;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
@@ -49,10 +50,10 @@ public class GUISelectClass extends RavengardView {
         for (Option option : Option.values()) {
             RavengardItems.Builder button = RavengardItems.button(option.statue)
                     .hoverColor(option.offset)
-                    .label("§a" + option.value.getDisplayName())
+                    .label(Text.of("<a>{}", option.value.getDisplayName()))
                     .lore(option.value.selectLore())
                     .blankLine()
-                    .lore("§eClick to select!");
+                    .lore("<e>Click to select!");
 
             interactive(layout, option.slot, button, (click, viewContext) -> {
                 if (click.player() instanceof RavengardPlayer player) {

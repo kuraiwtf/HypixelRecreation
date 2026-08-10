@@ -1,6 +1,7 @@
 package net.swofty.type.bedwarsgame.game.v2.listener;
 
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.swofty.commons.text.Text;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsGame;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsTeam;
 import net.swofty.type.bedwarsgame.replay.BedWarsReplayManager;
@@ -17,7 +18,7 @@ public class TeamEliminationListener implements HypixelEventClass {
     @PhasedEvent(node = EventNodes.CUSTOM, requireDataLoaded = false)
     public void run(TeamEliminatedEvent<BedWarsTeam> event) {
         BedWarsTeam team = event.team();
-        String teamColor = team.getColorCode();
+        TextColor teamColor = team.getColor();
         String teamName = team.getName();
 
         BedWarsGame game = (BedWarsGame) event.game();
@@ -29,9 +30,10 @@ public class TeamEliminationListener implements HypixelEventClass {
                 BedWarsStatsRecorder.recordLoss(player, game.getGameType());
             });
 
-        game.broadcastMessage(Component.text(""));
-        game.broadcastMessage(Component.text("§f§lTEAM ELIMINATED > §c" + teamColor + teamName + " §chas been eliminated!"));
-        game.broadcastMessage(Component.text(""));
+        game.broadcastMessage(Text.empty());
+        game.broadcastMessage(Text.of("<f><l>TEAM ELIMINATED > </l>{} <c>has been eliminated!",
+            Text.of("<color:{}>{}", teamColor, teamName)));
+        game.broadcastMessage(Text.empty());
 
         BedWarsReplayManager replayManager = game.getReplayManager();
 

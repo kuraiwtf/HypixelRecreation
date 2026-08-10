@@ -1,19 +1,16 @@
 package net.swofty.type.skywarsgame.luckyblock.items.weapons;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.swofty.pvp.entity.projectile.Snowball;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.skywarsgame.luckyblock.items.LuckyBlockItemRegistry;
 import net.swofty.type.skywarsgame.luckyblock.items.LuckyBlockWeapon;
 import net.swofty.type.skywarsgame.user.SkywarsPlayer;
 
-import java.util.List;
 import java.util.Random;
 
 public class Shotgun implements LuckyBlockWeapon {
@@ -41,27 +38,17 @@ public class Shotgun implements LuckyBlockWeapon {
 
     @Override
     public ItemStack createItemStack() {
-        return ItemStack.builder(Material.COMPARATOR)
-                .amount(6)
-                .customName(Component.text("Shotgun", NamedTextColor.GRAY)
-                        .decoration(TextDecoration.ITALIC, false))
-                .lore(List.of(
-                        Component.empty(),
-                        Component.text("Right-click to fire 5", NamedTextColor.GRAY)
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.text("short-range projectiles", NamedTextColor.GRAY)
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.text("in a spread pattern.", NamedTextColor.GRAY)
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.empty(),
-                        Component.text("Uses: ", NamedTextColor.GRAY)
-                                .append(Component.text("6", NamedTextColor.GREEN))
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.empty(),
-                        Component.text("LUCKY BLOCK ITEM", NamedTextColor.GOLD)
-                                .decoration(TextDecoration.ITALIC, false)
-                                .decoration(TextDecoration.BOLD, true)
-                ))
+        return ItemStacks.raw(Material.COMPARATOR, 6, """
+                        <7>Shotgun
+
+                        <7>Right-click to fire 5
+                        <7>short-range projectiles
+                        <7>in a spread pattern.
+
+                        <7>Uses: <a>6
+
+                        <6><l>LUCKY BLOCK ITEM
+                        """)
                 .set(LuckyBlockItemRegistry.LUCKY_BLOCK_ITEM_TAG, ID)
                 .build();
     }

@@ -1,17 +1,13 @@
 package net.swofty.type.bedwarsgame.game.v2.listener;
 
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.sound.SoundEventKeys;
 import net.minestom.server.timer.TaskSchedule;
-import net.swofty.commons.ChatUtility;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.bedwars.BedwarsLevelUtil;
+import net.swofty.commons.text.Text;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsGame;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsTeam;
 import net.swofty.type.bedwarsgame.stats.BedWarsStatsRecorder;
@@ -23,11 +19,12 @@ import net.swofty.type.generic.event.phase.PhasedEvent;
 import net.swofty.type.generic.guild.GuildManager;
 import org.tinylog.Logger;
 
+import java.util.List;
 import java.util.Optional;
 
 public class GameEndListener implements HypixelEventClass {
 
-    private static final String THICK_BAR = "§a§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
+    private static final Text THICK_BAR = Text.of("<a><l>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
     @PhasedEvent(node = EventNodes.CUSTOM, requireDataLoaded = false)
     public void onGameEnd(GameTeamWinConditionEvent<BedWarsTeam> event) {
@@ -66,44 +63,44 @@ public class GameEndListener implements HypixelEventClass {
         game.end();
 
         for (BedWarsPlayer player : game.getPlayers()) {
-            player.sendMessage(Component.text(THICK_BAR));
-            player.sendMessage(Component.text(ChatUtility.FontInfo.center("§lBed Wars"), NamedTextColor.WHITE));
-            player.sendMessage(Component.empty());
+            player.sendMessage(THICK_BAR);
+            player.sendMessage("<center><f><l>Bed Wars</center>");
+            player.sendMessage("");
 
             event.team().ifPresent(team -> {
-                String playerNamesConcatenated = team.getPlayerIds().stream()
+                List<Text> playerNames = team.getPlayerIds().stream()
                     .map(game::getPlayer)
-                    .filter(Optional::isPresent)
-                    .map(p -> LegacyComponentSerializer.legacySection().serialize(p.get().getColouredName()))
-                    .reduce((a, b) -> a + "§7," + b)
-                    .orElse("");
-                player.sendMessage(Component.text(ChatUtility.FontInfo.center(team.getColorCode() + team.getName() + " §7- " + playerNamesConcatenated), NamedTextColor.WHITE));
-                player.sendMessage(Component.empty());
+                    .flatMap(Optional::stream)
+                    .map(p -> Text.of("{}", p.getColouredName()))
+                    .toList();
+                player.sendMessage("<center><f>{} <7>- {}</center>",
+                    Text.of("<color:{}>{}", team.getColor(), team.getName()),
+                    Text.join(Text.of("<7>,"), playerNames));
+                player.sendMessage("");
             });
 
-            player.sendMessage(Component.text(ChatUtility.FontInfo.center("§e§l1st Killer §7- Username §7- 0")));
-            player.sendMessage(Component.text(ChatUtility.FontInfo.center("§6§l2nd Killer §7- Username §7- 0")));
-            player.sendMessage(Component.text(ChatUtility.FontInfo.center("§c§l3rd Killer §7- Username §7- 0")));
-            player.sendMessage(Component.empty());
-            player.sendMessage(Component.text(THICK_BAR));
+            player.sendMessage("<center><e><l>1st Killer </l><7>- Username - 0</center>");
+            player.sendMessage("<center><6><l>2nd Killer </l><7>- Username - 0</center>");
+            player.sendMessage("<center><c><l>3rd Killer </l><7>- Username - 0</center>");
+            player.sendMessage("");
+            player.sendMessage(THICK_BAR);
         }
 
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             for (BedWarsPlayer player : game.getPlayers()) {
-                player.sendMessage(Component.text(THICK_BAR));
-                player.sendMessage(Component.text(ChatUtility.FontInfo.center("§lReward Summary"), NamedTextColor.WHITE));
-                player.sendMessage(Component.empty());
-                player.sendMessage(Component.text("   §7You earned:"));
-                player.sendMessage(Component.text("    §f• §2" + player.getTokensThisGame() + " Bed Wars Tokens"));
-                player.sendMessage(Component.text("    §f• §3" + player.getHypixelXpThisGame() + " Hypixel Experience"));
-                player.sendMessage(Component.text("    §f• §20 Guild Experience"));
-                player.sendMessage(Component.empty());
-                player.sendMessage(Component.text(ChatUtility.FontInfo.center("Bed Wars XP"), NamedTextColor.AQUA));
+                player.sendMessage(THICK_BAR);
+                player.sendMessage("<center><f><l>Reward Summary</center>");
+                player.sendMessage("");
+                player.sendMessage("   <7>You earned:");
+                player.sendMessage("    <f>• <2>{} Bed Wars Tokens", player.getTokensThisGame());
+                player.sendMessage("    <f>• <3>{} Hypixel Experience", player.getHypixelXpThisGame());
+                player.sendMessage("    <f>• <2>0 Guild Experience");
+                player.sendMessage("");
+                player.sendMessage("<center><b>Bed Wars XP</center>");
 
                 long currentLevel = player.getCurrentBedWarsLevel();
-                player.sendMessage(Component.text(
-                    "§f          §bLevel " + currentLevel + "                                     §bLevel " + (currentLevel + 1)
-                ));
+                player.sendMessage("<f>          <b>Level {}                                     Level {}",
+                    currentLevel, currentLevel + 1);
 
                 long experience = player.getCurrentBedWarsExperience();
                 int progress = BedwarsLevelUtil.calculateExperienceSinceLastLevel(experience);
@@ -111,37 +108,22 @@ public class GameEndListener implements HypixelEventClass {
 
                 double percentage = Math.min(1.0, (double) progress / maxExperience);
                 int filledSquares = (int) Math.round(percentage * 34);
-                StringBuilder progressBar = new StringBuilder("§8[");
-                for (int i = 0; i < 34; i++) {
-                    if (i < filledSquares) {
-                        progressBar.append("§b■");
-                    } else {
-                        progressBar.append("§7■");
-                    }
-                }
-                progressBar.append("§8]");
-                player.sendMessage(Component.text("§f          " + progressBar));
+                player.sendMessage("<f>          <8>[<b>{}<7>{}<8>]",
+                    "■".repeat(filledSquares), "■".repeat(34 - filledSquares));
 
-                String prettyExperience = String.format("%,d", experience);
-                String prettyMaxExperience = String.format("%,d", maxExperience);
+                player.sendMessage("<center><b>{:,} <7>/ <a>{:,} <7>({}%)</center>",
+                    experience, maxExperience, String.format("%.1f", percentage * 100));
 
-                String percentageString = String.format("%.1f", percentage * 100);
-
-                player.sendMessage(ChatUtility.FontInfo.center(
-                    "§b" + prettyExperience + " §7/ §a" + prettyMaxExperience + " §7(" + percentageString + "%)"
-                ));
-
-                player.sendMessage(Component.empty());
-                player.sendMessage("§7You earned §b" + player.getXpThisGame() + " §bBed Wars XP");
-                player.sendMessage(Component.empty());
+                player.sendMessage("");
+                player.sendMessage("<7>You earned <b>{} Bed Wars XP", player.getXpThisGame());
+                player.sendMessage("");
                 // xp multipliers shown here
-                player.sendMessage(Component.text(THICK_BAR));
+                player.sendMessage(THICK_BAR);
                 if (isRecording) {
-                    player.sendMessage(Component.text("§aThis game has been recorded. §6Click here to watch the Replay!").clickEvent(
-                        ClickEvent.runCommand("/replay " + game.getReplayManager().getRecorder().getReplayId())
-                    ));
+                    player.sendMessage("<click:run:'/replay {}'><a>This game has been recorded. <6>Click here to watch the Replay!",
+                        game.getReplayManager().getRecorder().getReplayId());
                 }
-                player.sendMessage(Component.empty());
+                player.sendMessage("");
             }
         }).delay(TaskSchedule.seconds(2)).schedule();
 

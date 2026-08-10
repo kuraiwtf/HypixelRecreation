@@ -1,16 +1,13 @@
 package net.swofty.type.generic.gui.v2;
 
-import net.kyori.adventure.text.Component;
-import net.minestom.server.component.DataComponents;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.item.component.TooltipDisplay;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.gui.v2.context.ClickContext;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
 import net.swofty.type.generic.user.HypixelPlayer;
 
 import java.util.List;
-import java.util.Set;
 
 public abstract class PaginatedView<T, S extends PaginatedView.PaginatedState<T>> implements View<S> {
 
@@ -27,7 +24,7 @@ public abstract class PaginatedView<T, S extends PaginatedView.PaginatedState<T>
         28, 29, 30, 31, 32, 33, 34
     };
 
-    protected static final ItemStack.Builder FILLER = ItemStack.builder(Material.BLACK_STAINED_GLASS_PANE).set(DataComponents.CUSTOM_NAME, Component.text(" ")).set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, Set.of()));
+    protected static final ItemStack.Builder FILLER = ItemStacks.filler(Material.BLACK_STAINED_GLASS_PANE);
 
     public interface PaginatedState<T> {
         List<T> items();
@@ -116,11 +113,13 @@ public abstract class PaginatedView<T, S extends PaginatedView.PaginatedState<T>
     }
 
     protected ItemStack.Builder createPrevPageItem(int currentPage, int totalPages) {
-        return ItemStack.builder(Material.ARROW).set(DataComponents.CUSTOM_NAME, Component.text("§aPrevious Page")).set(DataComponents.LORE, List.of(Component.text("§ePage " + currentPage)));
+        return ItemStacks.lore(ItemStacks.named(Material.ARROW, "<a>Previous Page"),
+                "<e>Page {}", currentPage);
     }
 
     protected ItemStack.Builder createNextPageItem(int currentPage, int totalPages) {
-        return ItemStack.builder(Material.ARROW).set(DataComponents.CUSTOM_NAME, Component.text("§aNext Page")).set(DataComponents.LORE, List.of(Component.text("§ePage " + (currentPage + 2))));
+        return ItemStacks.lore(ItemStacks.named(Material.ARROW, "<a>Next Page"),
+                "<e>Page {}", currentPage + 2);
     }
 
     protected abstract int[] getPaginatedSlots();

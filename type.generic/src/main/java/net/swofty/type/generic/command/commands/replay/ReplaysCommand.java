@@ -1,7 +1,5 @@
 package net.swofty.type.generic.command.commands.replay;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.ServiceType;
 import net.swofty.commons.protocol.objects.replay.ChooseReplayProtocolObject;
@@ -31,7 +29,7 @@ public class ReplaysCommand extends HypixelCommand {
 		command.setDefaultExecutor((sender, _) -> {
 			final HypixelPlayer player = (HypixelPlayer) sender;
 
-			player.sendMessage(Component.text("Loading replays...", NamedTextColor.GRAY));
+			player.sendMessage("<7>Loading replays...");
 			displaySendReplay(player);
 		});
 	}
@@ -42,7 +40,7 @@ public class ReplaysCommand extends HypixelCommand {
 				sendToReplayViewer(player, replay);
 			}), new ReplaysListView.State(replays, 0));
 		}).exceptionally(e -> {
-			player.sendMessage(Component.text("Failed to load replays.", NamedTextColor.RED));
+			player.sendMessage("<c>Failed to load replays.");
 			return null;
 		});
 	}
@@ -78,19 +76,19 @@ public class ReplaysCommand extends HypixelCommand {
 	}
 
 	private static void sendToReplayViewer(HypixelPlayer player, ReplayEntry replay) {
-		player.sendMessage(Component.text("Loading replay...", NamedTextColor.GREEN));
+		player.sendMessage("<a>Loading replay...");
 
 		ProxyService replayService = new ProxyService(ServiceType.REPLAY);
 		var request = new ChooseReplayProtocolObject.ChooseReplayMessage(player.getUuid(), replay.replayId().toString());
 		replayService.<ChooseReplayProtocolObject.ChooseReplayMessage, ChooseReplayProtocolObject.ChooseReplayResponse>handleRequest(request).thenAccept(response -> {;
 			if (!response.error()) {
-				player.sendMessage(Component.text("Sending you to the Replay Viewer...", NamedTextColor.GRAY));
+				player.sendMessage("<7>Sending you to the Replay Viewer...");
 				player.sendTo(ServerType.REPLAY_VIEWER);
 			} else {
-				player.sendMessage(Component.text("Failed to send you to a replay viewer.", NamedTextColor.RED));
+				player.sendMessage("<c>Failed to send you to a replay viewer.");
 			}
 		}).exceptionally(e -> {
-			player.sendMessage(Component.text("Failed to load replay: " + e.getMessage(), NamedTextColor.RED));
+			player.sendMessage("<c>Failed to load replay: {}", e.getMessage());
 			return null;
 		});
 	}

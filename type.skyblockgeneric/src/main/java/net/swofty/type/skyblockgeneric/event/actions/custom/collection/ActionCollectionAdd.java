@@ -2,6 +2,7 @@ package net.swofty.type.skyblockgeneric.event.actions.custom.collection;
 
 import net.swofty.commons.StringUtility;
 import net.swofty.commons.skyblock.item.ItemType;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.ProxyPlayerSet;
 import net.swofty.type.generic.event.EventNodes;
 import net.swofty.type.generic.event.HypixelEventClass;
@@ -77,31 +78,34 @@ public class ActionCollectionAdd implements HypixelEventClass {
                 SkyBlockActionBar.DisplayReplacement existingReplacement = bar.getReplacement(SkyBlockActionBar.BarSection.DEFENSE);
                 if (existingReplacement != null) {
                     startingPriority = existingReplacement.priority() + 1;
-                    try {
-                        addedAmount = Integer.parseInt(existingReplacement.display().substring(2, existingReplacement.display().indexOf(" "))) + finalDropAmount;
-                    } catch (NumberFormatException ignored) {}
+                    String plain = existingReplacement.display().plain();
+                    int separator = plain.indexOf(' ');
+                    if (separator > 0) {
+                        try {
+                            addedAmount = Integer.parseInt(plain.substring(0, separator)) + finalDropAmount;
+                        } catch (NumberFormatException ignored) {}
+                    }
                 }
                 if (player.getCollection().getReward(collection) != null) {
                     bar.addReplacement(
                             SkyBlockActionBar.BarSection.DEFENSE,
-                            new SkyBlockActionBar.DisplayReplacement(
-                                    "§2+" + addedAmount + " " + finalType.getDisplayName() +
-                                            " §7(" + StringUtility.commaify(player.getCollection().get(finalType)) +
-                                            "/" +
-                                            StringUtility.shortenNumber(player.getCollection().getReward(collection).requirement()) + ")",
-                                    20,
-                                    startingPriority
-                            )
+                            Text.of("<2>+{} {} <7>({}/{})",
+                                    addedAmount,
+                                    finalType.getDisplayName(),
+                                    StringUtility.commaify(player.getCollection().get(finalType)),
+                                    StringUtility.shortenNumber(player.getCollection().getReward(collection).requirement())),
+                            20,
+                            startingPriority
                     );
                 } else { //if Collection is maxed
                     bar.addReplacement(
                             SkyBlockActionBar.BarSection.DEFENSE,
-                            new SkyBlockActionBar.DisplayReplacement(
-                                    "§2+" + addedAmount + " " + finalType.getDisplayName() +
-                                            " §7(" + StringUtility.commaify(player.getCollection().get(finalType)) + ")",
-                                    20,
-                                    startingPriority
-                            )
+                            Text.of("<2>+{} {} <7>({})",
+                                    addedAmount,
+                                    finalType.getDisplayName(),
+                                    StringUtility.commaify(player.getCollection().get(finalType))),
+                            20,
+                            startingPriority
                     );
                 }
             }, 5);

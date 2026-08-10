@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.hollowcube.polar.PolarLoader;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Pos;
@@ -27,6 +25,7 @@ import net.swofty.commons.skywars.SkywarsGameType;
 import net.swofty.commons.skywars.map.SkywarsMapsConfig;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.commons.redis.RedisMessageHandler;
+import net.swofty.commons.text.Text;
 import net.swofty.pvp.MinestomPvP;
 import net.swofty.type.game.game.GameObject;
 import net.swofty.type.generic.HypixelConst;
@@ -102,20 +101,18 @@ public class TypeSkywarsGameLoader implements HypixelTypeLoader {
         return game;
     }
 
-    private static Component header() {
-        return MiniMessage.miniMessage().deserialize("<aqua>You are playing on <bold><yellow>MC.HYPIXEL.NET</yellow></bold>");
+    private static Text header() {
+        return Text.of("<b>You are playing on <l><e>MC.HYPIXEL.NET</e></l>");
     }
 
-    private static Component footer(HypixelPlayer player) {
-        Component start = Component.empty();
+    private static Text footer(HypixelPlayer player) {
+        Text start = Text.empty();
         SkywarsGame game = getPlayerGame(player);
         if (game != null) {
             SkywarsPlayer swPlayer = (SkywarsPlayer) player;
-            start = start.append(MiniMessage.miniMessage().deserialize(
-                    "<yellow>Kills: <gold>" + swPlayer.getKillsThisGame()
-            )).appendNewline();
+            start = start.append("<e>Kills: <6>{}\n", swPlayer.getKillsThisGame());
         }
-        return start.append(Component.text("§aRanks, Boosters & MORE! §c§lSTORE.HYPIXEL.NET"));
+        return start.append("<a>Ranks, Boosters & MORE! <c><l>STORE.HYPIXEL.NET");
     }
 
     @Override

@@ -11,6 +11,7 @@ import net.minestom.server.component.DataComponents;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.TooltipDisplay;
+import net.swofty.commons.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,25 +45,25 @@ public final class RavengardItems {
         return new Builder(button);
     }
 
-    public static Component label(RavengardSprite button, String text, int offset) {
+    public static Component label(RavengardSprite button, Text text, int offset) {
         return label(button, text, offset, RavengardFont.DEFAULT);
     }
 
-    public static Component label(RavengardSprite button, String text, int offset, Key font) {
+    public static Component label(RavengardSprite button, Text text, int offset, Key font) {
         return Component.text(button.icon() + RavengardFont.space(-1))
                 .color(TextColor.color(offset))
                 .shadowColor(ICON_SHADOW)
                 .decoration(TextDecoration.ITALIC, false)
-                .append(Component.text(text)
-                        .color(NamedTextColor.WHITE)
+                .append(text.asComponent()
                         .shadowColor(LABEL_SHADOW)
-                        .font(font));
+                        .font(font)
+                        .applyFallbackStyle(NamedTextColor.WHITE));
     }
 
     public static final class Builder {
         private final RavengardSprite button;
-        private final List<Component> lore = new ArrayList<>();
-        private String text = "";
+        private final List<Text> lore = new ArrayList<>();
+        private Text text = Text.empty();
         private String tooltipStyle;
         private int amount = 1;
         private int originSlot;
@@ -111,6 +112,11 @@ public final class RavengardItems {
         }
 
         public Builder label(String value) {
+            this.text = Text.read(value);
+            return this;
+        }
+
+        public Builder label(Text value) {
             this.text = value;
             return this;
         }
@@ -127,18 +133,23 @@ public final class RavengardItems {
 
         public Builder lore(String... lines) {
             for (String line : lines) {
-                lore.add(Component.text(line).decoration(TextDecoration.ITALIC, false).font(font));
+                lore.add(Text.read(line));
             }
             return this;
         }
 
-        public Builder lore(Component... lines) {
+        public Builder lore(Text... lines) {
             lore.addAll(List.of(lines));
             return this;
         }
 
+        public Builder lore(List<Text> lines) {
+            lore.addAll(lines);
+            return this;
+        }
+
         public Builder blankLine() {
-            lore.add(Component.empty());
+            lore.add(Text.empty());
             return this;
         }
 
@@ -158,7 +169,11 @@ public final class RavengardItems {
                     .set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, HIDDEN));
 
             if (!lore.isEmpty()) {
-                builder.set(DataComponents.LORE, List.copyOf(lore));
+                List<Component> lines = new ArrayList<>(lore.size());
+                for (Text line : lore) {
+                    lines.add(line.asComponent().decoration(TextDecoration.ITALIC, false).font(font));
+                }
+                builder.set(DataComponents.LORE, lines);
             }
             if (tooltipStyle != null) {
                 builder.set(DataComponents.TOOLTIP_STYLE, tooltipStyle);

@@ -6,7 +6,6 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.Audiences;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
@@ -18,6 +17,8 @@ import net.minestom.server.utils.time.TimeUnit;
 import net.swofty.commons.CustomWorlds;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.config.ConfigProvider;
+import net.swofty.commons.text.Text;
+import net.swofty.commons.text.TextArgRenderers;
 import net.swofty.proxyapi.ProxyPlayer;
 import net.swofty.type.generic.achievement.AchievementRegistry;
 import net.swofty.type.generic.achievement.AchievementStatisticsService;
@@ -41,6 +42,7 @@ import net.swofty.type.generic.packet.HypixelPacketServerListener;
 import net.swofty.type.generic.quest.QuestRegistry;
 import net.swofty.type.generic.redis.RedisOriginServer;
 import net.swofty.type.generic.user.HypixelPlayer;
+import net.swofty.type.generic.user.categories.Rank;
 import net.swofty.type.generic.user.flow.GenericPlayerDataFlow;
 import net.swofty.type.generic.world.HypixelWorldLoader;
 import org.jetbrains.annotations.Nullable;
@@ -63,6 +65,8 @@ public record HypixelGenericLoader(HypixelTypeLoader loader) {
     public void initialize(MinecraftServer server) {
         HypixelGenericLoader.server = server;
         HypixelConst.setTypeLoader(loader);
+        TextArgRenderers.register(HypixelPlayer.class, HypixelPlayer::getRankDisplayName);
+        Text.registerTag(Rank.TAG, Rank::resolveTag);
         final boolean isSkyBlockType = loader.getType().isSkyBlock();
         final boolean isRavengardType = loader instanceof RavengardTypeLoader;
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
@@ -81,7 +85,7 @@ public record HypixelGenericLoader(HypixelTypeLoader loader) {
             // Large amount of Clients (such as Lunar) send a `/tip all` when joining
             // due to the scoreboard containing `hypixel.net`
             if (command.startsWith("tip ")) return;
-            sender.sendMessage("§fUnknown command. Type \"/help\" for help. ('" + command + "')");
+            sender.sendMessage(Text.of("<f>Unknown command. Type \"/help\" for help. ('{}')", command));
         });
         loopThroughPackage("net.swofty.type.generic.command.commands", HypixelCommand.class).forEach(command -> {
             try {
@@ -142,19 +146,20 @@ public record HypixelGenericLoader(HypixelTypeLoader loader) {
 
                     if (TPS < 20) {
                         HypixelGenericLoader.getLoadedPlayers().forEach(player -> {
-                            player.getLogHandler().debug("§cServer TPS is below 20! TPS: " + TPS);
+                            player.getLogHandler().debug("<c>Server TPS is below 20! TPS: {}", TPS);
                         });
                         Logger.error("Server TPS is below 20! TPS: " + TPS);
                     }
 
-                    final Component header = Component.text("§bYou are playing on §e§lMC.HYPIXEL.NET")
-                            .append(Component.newline())
-                            .append(Component.text("§7RAM USAGE: §8" + ramUsage + " MB"))
-                            .append(Component.newline())
-                            .append(Component.text("§7TPS: §8" + TPS))
-                            .append(Component.newline());
-                    final Component footer = Component.newline()
-                            .append(Component.text("§aRanks, Boosters & MORE! §c§lSTORE.HYPIXEL.NET"));
+                    final Text newline = Text.literal("\n");
+                    final Text header = Text.of("<b>You are playing on <e><l>MC.HYPIXEL.NET")
+                            .append(newline)
+                            .append(Text.of("<7>RAM USAGE: <8>{} MB", ramUsage))
+                            .append(newline)
+                            .append(Text.of("<7>TPS: <8>{}", TPS))
+                            .append(newline);
+                    final Text footer = newline
+                            .append(Text.of("<a>Ranks, Boosters & MORE! <c><l>STORE.HYPIXEL.NET"));
                     Audiences.players().sendPlayerListHeaderAndFooter(header, footer);
                 });
             }).repeat(10, TimeUnit.SERVER_TICK).schedule();

@@ -20,9 +20,9 @@ public class TestBankHashCommand extends HypixelCommand {
             SkyBlockPlayer player = (SkyBlockPlayer) sender;
             ProxyPlayer proxyPlayer = player.asProxyPlayer();
 
-            player.sendMessage("§8Sending out request for bank hash...");
+            player.sendMessage("<8>Sending out request for bank hash...");
             proxyPlayer.getBankHash().thenAccept((hash) -> {
-                player.sendMessage("§aBank hash: §6" + hash);
+                player.sendMessage("<a>Bank hash: <6>{}", hash);
             });
         });
     }

@@ -1,11 +1,10 @@
 package net.swofty.type.ravengardgeneric.gui;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.swofty.type.generic.gui.v2.DefaultState;
 import net.swofty.type.generic.gui.v2.ViewLayout;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
 import net.swofty.commons.ServerType;
+import net.swofty.commons.text.Text;
 import net.swofty.type.ravengardgeneric.classes.RavengardAbility;
 import net.swofty.type.ravengardgeneric.classes.RavengardClass;
 import net.swofty.type.ravengardgeneric.user.RavengardPlayer;
@@ -38,10 +37,10 @@ public class GUIRavengardMenu extends RavengardView {
 
         RavengardItems.Builder fight = RavengardItems.button(RavengardButton.TEXT_FIGHT)
                 .label("Join the Fight!")
-                .lore("§7Jump into the action and fight",
-                        "§7against other players and monsters!")
+                .lore("<7>Jump into the action and fight",
+                        "<7>against other players and monsters!")
                 .blankLine()
-                .lore("§eClick to join!")
+                .lore("<e>Click to join!")
                 .origin(SLOT_FIGHT);
         interactive(layout, SLOT_FIGHT, fight, (_, viewCtx) -> {
             viewCtx.player().closeInventory();
@@ -51,61 +50,61 @@ public class GUIRavengardMenu extends RavengardView {
         RavengardButton statue = playerClass == null ? null : RavengardButton.statueFor(playerClass);
         if (statue != null) {
             RavengardItems.Builder profile = RavengardItems.button(statue)
-                    .label("Profiles - " + playerClass.getDisplayName())
+                    .label(Text.of("Profiles - {}", playerClass.getDisplayName()))
                     .blankLine();
 
-            String[] profileLore = playerClass.profileLore();
+            List<Text> profileLore = playerClass.profileLore();
             if (profileLore != null) {
                 profile.lore(profileLore).blankLine();
             }
 
-            interactive(layout, SLOT_STATUE, profile.lore("§eClick to change profile!"),
+            interactive(layout, SLOT_STATUE, profile.lore("<e>Click to change profile!"),
                     (click, viewCtx) -> net.swofty.type.generic.gui.v2.ViewNavigator
                             .get(viewCtx.player()).push(new GUIProfiles()));
         }
 
         place(layout, SLOT_LOCKBOX, RavengardItems.button(RavengardButton.CHEST)
                 .label("Lockbox")
-                .lore("§7Safely store your items here!")
+                .lore("<7>Safely store your items here!")
                 .blankLine()
-                .lore("§eClick to open!"));
+                .lore("<e>Click to open!"));
 
         // Unreleased features. Hypixel renders their whole tooltip in the Illager rune font so the
         // placeholder text (alphabet runs, lorem ipsum) is unreadable in game; kept verbatim.
         place(layout, SLOT_BAG, RavengardItems.button(RavengardButton.BAG)
                 .font(RavengardFont.ILLAGERALT)
                 .label("Abcdefgh")
-                .lore("§7Lorem ipsum dolor sit amet!")
+                .lore("<7>Lorem ipsum dolor sit amet!")
                 .blankLine()
-                .lore("§cComing Soon!"));
+                .lore("<c>Coming Soon!"));
 
         place(layout, SLOT_TROPHY, RavengardItems.button(RavengardButton.TROPHY)
                 .font(RavengardFont.ILLAGERALT)
                 .label("Ijklmno")
-                .lore("§7Consectetur adipiscing elit.")
+                .lore("<7>Consectetur adipiscing elit.")
                 .blankLine()
-                .lore("§cComing Soon!"));
+                .lore("<c>Coming Soon!"));
 
         place(layout, SLOT_QUILL, RavengardItems.button(RavengardButton.QUILL)
                 .font(RavengardFont.ILLAGERALT)
                 .label("Pqrstuv")
-                .lore("§7Sed do eiusmod tempor incididunt!")
+                .lore("<7>Sed do eiusmod tempor incididunt!")
                 .blankLine()
-                .lore("§cComing Soon!"));
+                .lore("<c>Coming Soon!"));
 
         place(layout, SLOT_BOOK, RavengardItems.button(RavengardButton.BOOK)
                 .font(RavengardFont.ILLAGERALT)
                 .label("Pqrstu")
-                .lore("§7Sed do eiusmod tempor incididunt!")
+                .lore("<7>Sed do eiusmod tempor incididunt!")
                 .blankLine()
-                .lore("§cComing Soon!"));
+                .lore("<c>Coming Soon!"));
 
         place(layout, SLOT_CANDLE, RavengardItems.button(RavengardButton.CANDLE)
                 .font(RavengardFont.ILLAGERALT)
                 .label("Vwxyz")
-                .lore("§7Ut labore et dolore magna aliqua!")
+                .lore("<7>Ut labore et dolore magna aliqua!")
                 .blankLine()
-                .lore("§cComing Soon!"));
+                .lore("<c>Coming Soon!"));
 
         if (playerClass == null) {
             return;
@@ -117,10 +116,10 @@ public class GUIRavengardMenu extends RavengardView {
             RavengardAbility ability = abilities.get(index);
             final int page = index + 1;
             RavengardItems.Builder button = RavengardItems.button(ability)
-                    .label("Ability " + page + " - " + ability.getDisplayName())
+                    .label(Text.of("Ability {} - {}", page, ability.getDisplayName()))
                     .lore(ability.getWrappedDescription())
                     .blankLine()
-                    .lore("§eClick to change!")
+                    .lore("<e>Click to change!")
                     .origin(slots[index]);
             interactive(layout, slots[index], button, (click, viewCtx) ->
                     net.swofty.type.generic.gui.v2.ViewNavigator.get(viewCtx.player())
@@ -131,7 +130,7 @@ public class GUIRavengardMenu extends RavengardView {
     @Override
     public void onOpen(DefaultState state, ViewContext ctx) {
         if (((RavengardPlayer) ctx.player()).isTutorial()) {
-            ctx.player().sendMessage(Component.text("You must select a class to open this menu!", NamedTextColor.RED));
+            ctx.player().sendMessage("<c>You must select a class to open this menu!");
             ctx.backOrClose();
             return;
         }

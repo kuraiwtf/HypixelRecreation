@@ -17,7 +17,8 @@ import net.swofty.commons.skyblock.item.attribute.attributes.ItemAttributeRarity
 import net.swofty.commons.skyblock.item.attribute.attributes.ItemAttributeStatistics;
 import net.swofty.commons.skyblock.item.attribute.attributes.ItemAttributeType;
 import net.swofty.commons.skyblock.statistics.ItemStatistics;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
+import net.swofty.commons.text.Text;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.skyblockgeneric.item.components.EnchantedComponent;
 import net.swofty.type.skyblockgeneric.item.components.SkullHeadComponent;
 import net.swofty.type.skyblockgeneric.item.updater.NonPlayerItemUpdater;
@@ -216,12 +217,13 @@ public class SkyBlockItem {
 		ItemStack.Builder builder;
 
 		if (hasComponent(SkullHeadComponent.class)) {
-			builder = ItemStackCreator.getStackHead(getDisplayName(), getComponent(SkullHeadComponent.class).getSkullTexture(this), getAmount());
+			builder = ItemStacks.head(getComponent(SkullHeadComponent.class).getSkullTexture(this), getAmount(),
+					Text.literal(getDisplayName()), List.of());
 		} else {
-			builder = ItemStackCreator.getStack(getDisplayName(), getMaterial(), getAmount());
+			builder = ItemStacks.item(getMaterial(), getAmount(), Text.literal(getDisplayName()), List.of());
 		}
 
-		if (hasComponent(EnchantedComponent.class)) return ItemStackCreator.enchant(builder);
+		if (hasComponent(EnchantedComponent.class)) return ItemStacks.enchanted(builder);
 		else return builder;
 	}
 
@@ -282,7 +284,7 @@ public class SkyBlockItem {
 			itemStackBuilder.setTag(Tag.String(attribute.getKey()), attribute.saveIntoString());
 		}
 
-		return ItemStackCreator.clearAttributes(itemStackBuilder);
+		return ItemStacks.clearAttributes(itemStackBuilder);
 	}
 
 	public <T extends SkyBlockItemComponent> boolean hasComponent(Class<T> componentClass) {
@@ -366,35 +368,45 @@ public class SkyBlockItem {
 	}
 
 	public String getCleanName() {
-		String displayName = getDisplayName();
-		return displayName.replaceAll("§[0-9a-fk-or]", "");
+		return getDisplayName();
 	}
 
 	/**
-	 * Gets the lore of the item, formatted as a list of components
+	 * Gets the lore of the item, formatted as a list of text
 	 *
-	 * @return the lore of the item, formatted as a list of components
+	 * @return the lore of the item, formatted as a list of text
 	 */
-	public List<Component> getLoreComponent() {
-		return new NonPlayerItemUpdater(this).getUpdatedItem().build().get(DataComponents.LORE);
+	public List<Text> getLoreText() {
+		return asLoreText(new NonPlayerItemUpdater(this).getUpdatedItem().build().get(DataComponents.LORE));
 	}
 
 	/**
-	 * Gets the lore of the item, formatted as a list of components
+	 * Gets the lore of the item, formatted as a list of text
 	 *
 	 * @param player the player to get the lore for
-	 * @return the lore of the item, formatted as a list of components
+	 * @return the lore of the item, formatted as a list of text
 	 */
-	public List<Component> getLoreComponent(final @NotNull SkyBlockPlayer player) {
-		return PlayerItemUpdater.playerUpdate(player, getItemStackBuilder().build(), false).build()
-				.get(DataComponents.LORE);
+	public List<Text> getLoreText(final @NotNull SkyBlockPlayer player) {
+		return asLoreText(PlayerItemUpdater.playerUpdate(player, getItemStackBuilder().build(), false).build()
+				.get(DataComponents.LORE));
+	}
+
+	private static List<Text> asLoreText(List<Component> lore) {
+		List<Text> result = new ArrayList<>(lore == null ? 0 : lore.size());
+		if (lore == null) {
+			return result;
+		}
+		for (Component line : lore) {
+			result.add(Text.of("{}", line));
+		}
+		return result;
 	}
 
 	/**
 	 * Gets the lore of the item, formatted as a list of strings
 	 *
 	 * @return the lore of the item, formatted as a list of strings
-	 * @deprecated use {@link #getLoreComponent()}
+	 * @deprecated use {@link #getLoreText()}
 	 */
 	@Deprecated
 	public List<String> getLore() {
@@ -406,7 +418,7 @@ public class SkyBlockItem {
 	/**
 	 * Gets the lore of the item, formatted as a list of strings
 	 *
-	 * @deprecated use {@link #getLoreComponent(SkyBlockPlayer)}
+	 * @deprecated use {@link #getLoreText(SkyBlockPlayer)}
 	 * @param player the player to get the lore for
 	 * @return the lore of the item, formatted as a list of strings
 	 */

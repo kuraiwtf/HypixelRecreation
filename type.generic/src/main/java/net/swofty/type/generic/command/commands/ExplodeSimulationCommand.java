@@ -39,11 +39,11 @@ public class ExplodeSimulationCommand extends HypixelCommand {
     private void executeExplosion(HypixelPlayer player, int radius, double knockbackStrength) {
         Instance instance = player.getInstance();
         if (instance == null) {
-            player.sendMessage("§cNo instance found!");
+            player.sendMessage("<c>No instance found!");
             return;
         }
 
         int blockCount = AnimatedExplosion.create(instance, player.getPosition(), radius, knockbackStrength, player);
-        player.sendMessage("§aExplosion simulated! §7(" + blockCount + " blocks affected)");
+        player.sendMessage("<a>Explosion simulated! <7>({} blocks affected)", blockCount);
     }
 }

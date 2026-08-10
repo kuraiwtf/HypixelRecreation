@@ -1,7 +1,5 @@
 package net.swofty.type.murdermysterygame.events;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.item.Material;
 import net.swofty.pvp.events.PrepareAttackEvent;
 import net.swofty.type.murdermysterygame.TypeMurderMysteryGameLoader;
@@ -60,8 +58,7 @@ public class ActionPlayerCombat implements HypixelEventClass {
                 // Check if murderer is weakened (from weakness splash potion)
                 if (!WeaknessProtectionManager.handleMurdererAttack(attacker)) {
                     // Murderer is weakened - attack absorbed
-                    attacker.sendMessage(Component.text("Your attack was weakened!",
-                            NamedTextColor.YELLOW));
+                    attacker.sendMessage("<e>Your attack was weakened!");
                     event.setCancelled(true);
                     return;
                 }

@@ -16,11 +16,13 @@ import net.minestom.server.scoreboard.BelowNameTag;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 import net.swofty.commons.TeamColorUtil;
+import net.swofty.commons.text.Text;
 import net.swofty.type.game.replay.ReplayMetadata;
 import net.swofty.type.game.replay.entity.EntityStateTracker;
 import net.swofty.type.game.replay.recordable.Recordable;
 import net.swofty.type.generic.user.HypixelPlayer;
 import net.swofty.type.generic.utility.ScheduleUtility;
+import net.swofty.type.generic.utility.Titles;
 import net.swofty.type.replayviewer.TypeReplayViewerLoader;
 import net.swofty.type.replayviewer.entity.ReplayEntity;
 import net.swofty.type.replayviewer.entity.ReplayEntityManager;
@@ -52,7 +54,7 @@ public class ReplaySession {
     private final DroppedItemManager droppedItemManager;
     private final DynamicTextManager dynamicTextManager;
     private final NpcReplayManager npcManager;
-    private final BelowNameTag belowNameTag = new BelowNameTag("health", Component.text("§c❤"));
+    private final BelowNameTag belowNameTag = HypixelPlayer.belowNameTag("health", "<c>❤");
     private final Map<Integer, PlayerNameTag> playerNameTags = new ConcurrentHashMap<>();
 
     private volatile int currentTick = 0;
@@ -168,7 +170,7 @@ public class ReplaySession {
             if (entity instanceof ReplayPlayerEntity playerEntity) {
                 if (viewerUuid.equals(playerEntity.getActualUuid())) {
                     viewer.teleport(playerEntity.getPosition());
-                    viewer.sendMessage("§aTeleporting you to " + playerEntity.getActualUuid());
+                    ((HypixelPlayer) viewer).sendMessage("<a>Teleporting you to {}", playerEntity.getActualUuid());
                     applyTeamGlow(viewer, entity, entityId);
                     return;
                 }
@@ -298,7 +300,7 @@ public class ReplaySession {
             play();
         }
         for (Player viewer : viewers) {
-            viewer.sendMessage(Component.text("Speed: " + playbackSpeed + "x", NamedTextColor.AQUA));
+            ((HypixelPlayer) viewer).sendMessage("<b>Speed: {}x", playbackSpeed);
         }
     }
 
@@ -339,13 +341,10 @@ public class ReplaySession {
     }
 
     private void updateActionBar() {
-        Component actionBar = Component.text()
-                .append(Component.text(playing ? "§aPlaying" : "§cPaused"))
-                .append(Component.text("    "))
-                .append(Component.text(getFormattedTime() + " / " + getFormattedTotalTime(), NamedTextColor.YELLOW))
-                .append(Component.text("    "))
-                .append(Component.text(String.format("%.1fx", playbackSpeed), NamedTextColor.GOLD))
-                .build();
+        Text actionBar = Text.of(
+                (playing ? "<a>Playing" : "<c>Paused") + "    <e>{} / {}    <6>{}",
+                getFormattedTime(), getFormattedTotalTime(), String.format("%.1fx", playbackSpeed)
+        );
         for (Player viewer : viewers) {
             viewer.sendActionBar(actionBar);
         }
@@ -382,9 +381,9 @@ public class ReplaySession {
     }
 
     private void showSeekTitle(int tick) {
-        Title title = Title.title(
-                Component.text(getFormattedTime(), NamedTextColor.GREEN),
-                Component.text("/" + getFormattedTotalTime(), NamedTextColor.GRAY),
+        Title title = Titles.title(
+                Text.of("<a>{}", getFormattedTime()),
+                Text.of("<7>/{}", getFormattedTotalTime()),
                 Title.Times.times(Duration.ZERO, Duration.ofMillis(500), Duration.ofMillis(200))
         );
         for (Player viewer : viewers) {
@@ -434,8 +433,8 @@ public class ReplaySession {
                 new TeamsPacket.CreateTeamAction(
                         new TeamsPacket.Settings(
                                 Component.empty(),
-                                Component.text(tag.prefix()),
-                                Component.text(tag.suffix()),
+                                legacyOrMarkup(tag.prefix()).asComponent(),
+                                legacyOrMarkup(tag.suffix()).asComponent(),
                                 TeamsPacket.NameTagVisibility.ALWAYS,
                                 TeamsPacket.CollisionRule.NEVER,
                                 TeamColorUtil.fromNamedColor(teamColor),
@@ -457,9 +456,9 @@ public class ReplaySession {
     // TODO: parity
     private void onReplayEnd() {
         pause();
-        Title title = Title.title(
-                Component.text("Replay Ended", NamedTextColor.GOLD),
-                Component.text("Use /replay restart to watch again", NamedTextColor.GRAY),
+        Title title = Titles.title(
+                "<6>Replay Ended",
+                "<7>Use /replay restart to watch again",
                 Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(3), Duration.ofMillis(500))
         );
         for (Player viewer : viewers) {
@@ -634,6 +633,11 @@ public class ReplaySession {
     public void seekToPercent(float percent) {
         int targetTick = (int) (getTotalTicks() * (percent / 100f));
         seekTo(targetTick);
+    }
+
+    private static Text legacyOrMarkup(String raw) {
+        if (raw == null || raw.isEmpty()) return Text.empty();
+        return Text.read(raw);
     }
 
     private record PlayerNameTag(String entryName, String prefix, String suffix, int nameColor) {

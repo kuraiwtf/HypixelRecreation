@@ -62,25 +62,25 @@ public final class RavengardProfiles {
 
     public static void announce(RavengardPlayer player) {
         RavengardProfile profile = ensure(player);
-        player.sendMessage("§8Profile ID: " + profile.getId());
+        player.sendMessage("<8>Profile ID: {}", profile.getId());
         player.sendMessage("       ");
         restoreInventory(player, profile);
     }
 
     public static void create(RavengardPlayer player) {
         if (list(player).size() >= MAX_PROFILES) {
-            player.sendMessage("§cYou already have the maximum number of profiles!");
+            player.sendMessage("<c>You already have the maximum number of profiles!");
             return;
         }
 
         saveActive(player);
-        player.sendMessage("§7Creating profile...");
+        player.sendMessage("<7>Creating profile...");
 
         RavengardProfile profile = new RavengardProfile(UUID.randomUUID(), player.getUuid());
         RavengardProfileDatabase.save(profile);
 
-        player.sendMessage("§7Successfully created profile!");
-        player.sendMessage("§8Profile ID: " + profile.getId());
+        player.sendMessage("<7>Successfully created profile!");
+        player.sendMessage("<8>Profile ID: {}", profile.getId());
         player.sendMessage("       ");
 
         activate(player, profile);
@@ -89,7 +89,7 @@ public final class RavengardProfiles {
     public static void select(RavengardPlayer player, UUID profileId) {
         RavengardProfile profile = RavengardProfileDatabase.byId(profileId);
         if (profile == null || !profile.getOwner().equals(player.getUuid())) {
-            player.sendMessage("§cThat profile no longer exists.");
+            player.sendMessage("<c>That profile no longer exists.");
             return;
         }
         if (profileId.equals(player.getSelectedProfile())) {
@@ -97,7 +97,7 @@ public final class RavengardProfiles {
         }
 
         saveActive(player);
-        player.sendMessage("§8Profile ID: " + profile.getId());
+        player.sendMessage("<8>Profile ID: {}", profile.getId());
         player.sendMessage("       ");
         activate(player, profile);
     }
@@ -110,7 +110,7 @@ public final class RavengardProfiles {
 
         boolean wasSelected = profileId.equals(player.getSelectedProfile());
         RavengardProfileDatabase.delete(profileId);
-        player.sendMessage("§7Successfully deleted profile!");
+        player.sendMessage("<7>Successfully deleted profile!");
 
         if (!wasSelected) {
             return;
@@ -122,7 +122,7 @@ public final class RavengardProfiles {
             return;
         }
         player.setSelectedProfile(null);
-        player.sendMessage("§8Profile ID: " + remaining.getFirst().getId());
+        player.sendMessage("<8>Profile ID: {}", remaining.getFirst().getId());
         player.sendMessage("       ");
         activate(player, remaining.getFirst());
     }
@@ -230,10 +230,6 @@ public final class RavengardProfiles {
         }
     }
 
-    /**
-     * Rebuilds the player's inventory from the profile: the saved slots when it has them, the
-     * class defaults when it has never saved any.
-     */
     public static void restoreInventory(RavengardPlayer player, RavengardProfile profile) {
         player.getInventory().clear();
         if (!profile.getInventory().isEmpty()) {
@@ -249,7 +245,7 @@ public final class RavengardProfiles {
             return;
         }
 
-        player.sendMessage("§7Restoring default equipment...");
+        player.sendMessage("<7>Restoring default equipment...");
         RavengardClass profileClass = profile.getProfileClass();
         if (profileClass != null) {
             RavengardSelection.giveKit(player, profileClass);

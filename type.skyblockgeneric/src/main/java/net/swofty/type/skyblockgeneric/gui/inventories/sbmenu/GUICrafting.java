@@ -1,6 +1,5 @@
 package net.swofty.type.skyblockgeneric.gui.inventories.sbmenu;
 
-import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.Click;
@@ -9,9 +8,9 @@ import net.minestom.server.item.Material;
 import net.minestom.server.tag.Tag;
 import net.swofty.commons.StringUtility;
 import net.swofty.commons.skyblock.item.ItemType;
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.event.HypixelEventHandler;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
-import net.swofty.type.generic.gui.inventory.TranslatableItemStackCreator;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.gui.v2.Components;
 import net.swofty.type.generic.gui.v2.Layouts;
 import net.swofty.type.generic.gui.v2.StatefulView;
@@ -20,7 +19,6 @@ import net.swofty.type.generic.gui.v2.ViewLayout;
 import net.swofty.type.generic.gui.v2.ViewSession;
 import net.swofty.type.generic.gui.v2.context.ClickContext;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
-import net.swofty.type.generic.i18n.I18n;
 import net.swofty.type.skyblockgeneric.event.custom.ItemCraftEvent;
 import net.swofty.type.skyblockgeneric.item.SkyBlockItem;
 import net.swofty.type.skyblockgeneric.item.crafting.SkyBlockRecipe;
@@ -29,11 +27,11 @@ import net.swofty.type.skyblockgeneric.user.SkyBlockPlayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class GUICrafting implements StatefulView<GUICrafting.CraftingState> {
-    private static final String[] DEFAULT_CRAFT_ERROR = new String[]{"§cYou cannot craft this item right now."};
+    private static final List<Text> DEFAULT_CRAFT_ERROR = List.of(Text.of("<c>You cannot craft this item right now."));
     private static final int[] CRAFT_SLOTS = new int[]{10, 11, 12, 19, 20, 21, 28, 29, 30};
     private static final int RESULT_SLOT = 23;
 
@@ -58,12 +56,12 @@ public class GUICrafting implements StatefulView<GUICrafting.CraftingState> {
 
         boolean hasValidRecipe = recipe != null;
         SkyBlockRecipe.CraftingResult result = hasValidRecipe ? recipe.getCanCraft().apply(player) : null;
-        String[] craftErrorMessages = getCraftErrorMessages(result);
+        List<Text> craftErrorMessages = getCraftErrorMessages(result);
         boolean canCraft = hasValidRecipe && result != null && result.allowed();
 
         Material borderMaterial = canCraft ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
         Components.fill(layout);
-        layout.slots(Layouts.row(5), (_, _) -> ItemStackCreator.createNamedItemStack(borderMaterial));
+        layout.slots(Layouts.row(5), (_, _) -> ItemStacks.named(borderMaterial, ""));
         Components.close(layout, 49);
 
         Components.containerGrid(
@@ -80,27 +78,27 @@ public class GUICrafting implements StatefulView<GUICrafting.CraftingState> {
         );
 
         if (!hasValidRecipe) {
-            layout.slot(RESULT_SLOT, (_, _) -> TranslatableItemStackCreator.getStack("gui_sbmenu.crafting.recipe_required", Material.BARRIER, 1, "gui_sbmenu.crafting.recipe_required.lore"));
+            layout.slot(RESULT_SLOT, (_, _) -> ItemStacks.item(Material.BARRIER, 1,
+                Text.key("gui_sbmenu.crafting.recipe_required"),
+                Text.keyLines("gui_sbmenu.crafting.recipe_required.lore")));
         } else if (!canCraft) {
-            layout.slot(RESULT_SLOT, (_, _) -> ItemStackCreator.getStack(craftErrorMessages[0],
-                Material.BEDROCK, 1,
-                Arrays.copyOfRange(craftErrorMessages, 1, craftErrorMessages.length)));
+            layout.slot(RESULT_SLOT, (_, _) -> ItemStacks.item(Material.BEDROCK, 1,
+                craftErrorMessages.getFirst(),
+                craftErrorMessages.subList(1, craftErrorMessages.size())));
         } else {
             int amount = recipe.getAmount();
             layout.slot(RESULT_SLOT, (_, c) -> {
                 SkyBlockPlayer p = (SkyBlockPlayer) c.player();
                 ItemStack.Builder builder = PlayerItemUpdater.playerUpdate(p, recipe.getResult().getItemStack()).amount(amount);
 
-                ArrayList<Object> lore = new ArrayList<>();
+                List<Text> lore = new ArrayList<>();
                 var existingLore = builder.build().get(DataComponents.LORE);
                 if (existingLore != null) {
-                    existingLore.stream().map(line -> "§7" + StringUtility.getTextFromComponent(line)).forEach(lore::add);
+                    existingLore.forEach(line -> lore.add(Text.of("<7>{}", StringUtility.getTextFromComponent(line))));
                 }
-                lore.addAll(Arrays.asList(I18n.iterable("gui_sbmenu.crafting.crafting_item.lore")));
-                builder.set(DataComponents.LORE, ItemStackCreator.literalLoreComponents(lore).stream().map(line -> line.decoration(TextDecoration.ITALIC, false))
-                    .collect(Collectors.toList()));
+                lore.addAll(Text.keyLines("gui_sbmenu.crafting.crafting_item.lore"));
 
-                return builder;
+                return ItemStacks.lore(builder, lore);
             }, (click, c) -> handleCraft(click, c, recipe, amount));
         }
     }
@@ -125,11 +123,11 @@ public class GUICrafting implements StatefulView<GUICrafting.CraftingState> {
         return hash;
     }
 
-    private String[] getCraftErrorMessages(SkyBlockRecipe.CraftingResult result) {
+    private List<Text> getCraftErrorMessages(SkyBlockRecipe.CraftingResult result) {
         if (result == null || result.errorMessage() == null || result.errorMessage().length == 0) {
             return DEFAULT_CRAFT_ERROR;
         }
-        return result.errorMessage();
+        return Arrays.stream(result.errorMessage()).map(Text::parse).toList();
     }
 
     private SkyBlockRecipe<?> parseCurrentRecipe(ViewContext ctx) {

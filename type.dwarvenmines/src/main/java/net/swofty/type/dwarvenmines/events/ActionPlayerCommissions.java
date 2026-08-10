@@ -82,6 +82,6 @@ public class ActionPlayerCommissions implements HypixelEventClass {
 	}
 
 	private static void onCommissionComplete(SkyBlockPlayer player, Commission commission) {
-		player.sendMessage("§a§l" + commission.name + " §eCommission Complete! Visit the King to claim your rewards!");
+		player.sendMessage("<a><l>{} </l><e>Commission Complete! Visit the King to claim your rewards!", commission.name);
 	}
 }

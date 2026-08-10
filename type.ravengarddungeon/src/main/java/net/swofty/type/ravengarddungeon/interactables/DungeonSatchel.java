@@ -1,6 +1,5 @@
 package net.swofty.type.ravengarddungeon.interactables;
 
-import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -13,6 +12,7 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
+import net.swofty.type.generic.gui.inventory.Inventories;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -100,7 +100,7 @@ public final class DungeonSatchel extends DungeonInteractable {
         }
         bag.editEntityMeta(ItemDisplayMeta.class, meta -> meta.setItemStack(modelStack(OPEN_MODEL)));
 
-        Inventory inventory = new Inventory(InventoryType.CHEST_5_ROW, Component.text("Dead Body"));
+        Inventory inventory = Inventories.of(InventoryType.CHEST_5_ROW, "Dead Body");
         Random random = ThreadLocalRandom.current();
         double distance = Math.hypot(base.x(), base.z());
         int rolls = 1 + random.nextInt(3);

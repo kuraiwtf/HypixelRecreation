@@ -1,12 +1,10 @@
 package net.swofty.type.generic.gui.impl.replay;
 
-import net.kyori.adventure.text.Component;
-import net.minestom.server.component.DataComponents;
 import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.swofty.commons.StringUtility;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.gui.v2.Components;
 import net.swofty.type.generic.gui.v2.StatefulPaginatedView;
 import net.swofty.type.generic.gui.v2.ViewConfiguration;
@@ -16,7 +14,6 @@ import net.swofty.type.generic.gui.v2.context.ViewContext;
 import net.swofty.type.generic.user.HypixelPlayer;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -69,23 +66,23 @@ public class ReplaysListView extends StatefulPaginatedView<ReplayEntry, ReplaysL
     protected void layoutBackground(ViewLayout<State> layout, State state, ViewContext ctx) {
         Components.close(layout, 48);
 
-        layout.slot(47, (_, _) -> ItemStackCreator.getStack("§aHypixel Replays", Material.BOOK, 1, List.of(
-            "§7The Hypixel Replay System allows",
-            "§7players to watch back their recently",
-            "§7played games.",
-            "§7",
-            "§7Replays are currently supported in the following games:",
-            "§f - Bed Wars"
-        )));
+        layout.slot(47, (_, _) -> ItemStacks.item(Material.BOOK, 1, """
+            <a>Hypixel Replays
+            <7>The Hypixel Replay System allows
+            <7>players to watch back their recently
+            <7>played games.
+
+            <7>Replays are currently supported in the following games:
+            <f> - Bed Wars"""));
 
         // TODO: behaviour
-        layout.slot(49, (_, _) -> ItemStackCreator.getStack("§aShow Replays Only", Material.GRAY_DYE, 1, List.of(
-            "§7Toggle whether all your recently",
-            "§7played games should be displayed or",
-            "§7only games with replays attached.",
-            "§7",
-            "§eClick to toggle!"
-        )));
+        layout.slot(49, (_, _) -> ItemStacks.item(Material.GRAY_DYE, 1, """
+            <a>Show Replays Only
+            <7>Toggle whether all your recently
+            <7>played games should be displayed or
+            <7>only games with replays attached.
+
+            <e>Click to toggle!"""));
     }
 
     @Override
@@ -98,17 +95,6 @@ public class ReplaysListView extends StatefulPaginatedView<ReplayEntry, ReplaysL
         };
 
 
-        List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("§7" + DATE_FORMAT.format(new Date(item.startTime()))));
-        lore.add(Component.text("§7Duration: " + item.formattedDuration()));
-        lore.add(Component.empty());
-        lore.add(Component.text("§7Mode: §a" + StringUtility.capitalize(item.gameTypeName())));
-        lore.add(Component.text("§7Map: §a" + item.mapName()));
-        lore.add(Component.empty());
-        lore.add(Component.text("§7Server: §a" + item.serverId()));
-        lore.add(Component.text("§7Players: §a" + item.players().size()));
-        lore.add(Component.empty());
-
         // add this properly on Duels
         /*if (item.winnerId() != null) {
             boolean won = item.players().containsKey(player.getUuid()) &&
@@ -119,13 +105,25 @@ public class ReplaysListView extends StatefulPaginatedView<ReplayEntry, ReplaysL
                     Component.text("DEFEAT", NamedTextColor.RED));
         }*/
 
-        lore.add(Component.text("§eClick to view replay!"));
+        return ItemStacks.item(material, """
+            <a>{}
+            <7>{}
+            <7>Duration: {}
 
-        return ItemStack.builder(material)
-                .set(DataComponents.CUSTOM_NAME, Component.text("§a" + item.displayName()))
-                .set(DataComponents.LORE, lore)
-                //.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, Set.of()))
-                ;
+            <7>Mode: <a>{}
+            <7>Map: <a>{}
+
+            <7>Server: <a>{}
+            <7>Players: <a>{}
+
+            <e>Click to view replay!""",
+                item.displayName(),
+                DATE_FORMAT.format(new Date(item.startTime())),
+                item.formattedDuration(),
+                StringUtility.capitalize(item.gameTypeName()),
+                item.mapName(),
+                item.serverId(),
+                item.players().size());
     }
 
     @Override

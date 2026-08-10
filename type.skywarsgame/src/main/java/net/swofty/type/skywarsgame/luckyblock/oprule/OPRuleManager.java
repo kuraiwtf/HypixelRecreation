@@ -1,8 +1,6 @@
 package net.swofty.type.skywarsgame.luckyblock.oprule;
 
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
@@ -13,6 +11,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
+import net.swofty.commons.text.Text;
 import net.swofty.type.skywarsgame.game.SkywarsGame;
 import net.swofty.type.skywarsgame.user.SkywarsPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +39,7 @@ public class OPRuleManager {
 
     public boolean activateRandomRule(SkywarsPlayer activator) {
         if (opRuleUsed) {
-            activator.sendMessage(Component.text("An OP Rule has already been used this game!", NamedTextColor.RED));
+            activator.sendMessage("<c>An OP Rule has already been used this game!");
             return false;
         }
 
@@ -56,8 +55,8 @@ public class OPRuleManager {
         activeRule = rule;
         opRuleUsed = true;
 
-        game.broadcastMessage(rule.getAnnouncementComponent());
-        game.broadcastMessage(Component.text(activator.getUsername() + " activated the OP Rule!", NamedTextColor.AQUA));
+        game.broadcastMessage(rule.getAnnouncement());
+        game.broadcastMessage(Text.of("<b>{} activated the OP Rule!", activator.getUsername()));
 
         rule.activate(game, activator);
 

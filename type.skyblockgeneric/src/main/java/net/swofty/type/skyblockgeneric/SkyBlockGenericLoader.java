@@ -7,7 +7,6 @@ import com.mongodb.client.MongoClients;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.CoordConversion;
 import net.minestom.server.coordinate.Pos;
@@ -24,6 +23,7 @@ import net.swofty.commons.config.ConfigProvider;
 import net.swofty.commons.skyblock.item.ItemType;
 import net.swofty.commons.skyblock.item.attribute.ItemAttribute;
 import net.swofty.commons.skyblock.item.reforge.ReforgeLoader;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.PlayerTransferDataCache;
 import net.swofty.proxyapi.ProxyPlayer;
 import net.swofty.type.generic.HypixelConst;
@@ -43,6 +43,7 @@ import net.swofty.type.generic.user.categories.CustomGroups;
 import net.swofty.type.generic.user.flow.GenericPlayerDataFlow;
 import net.swofty.type.generic.utility.ScheduleUtility;
 import net.swofty.type.skyblockgeneric.abiphone.AbiphoneNPC;
+import net.swofty.type.skyblockgeneric.text.SkyBlockTextScopes;
 import net.swofty.type.skyblockgeneric.abiphone.AbiphoneRegistry;
 import net.swofty.type.skyblockgeneric.block.attribute.BlockAttribute;
 import net.swofty.type.skyblockgeneric.block.placement.BlockPlacementManager;
@@ -121,6 +122,7 @@ public record SkyBlockGenericLoader(HypixelTypeLoader typeLoader) {
     @SneakyThrows
     public void initialize(MinecraftServer server) {
         SkyBlockGenericLoader.server = server;
+        SkyBlockTextScopes.init();
         CustomWorlds mainInstance = typeLoader.getMainInstance();
 
         /**
@@ -215,48 +217,41 @@ public record SkyBlockGenericLoader(HypixelTypeLoader typeLoader) {
 
             if (TPS < 20) {
                 HypixelGenericLoader.getLoadedPlayers().forEach(player -> {
-                    player.getLogHandler().debug("§cServer TPS is below 20! TPS: " + TPS);
+                    player.getLogHandler().debug(Text.of("<c>Server TPS is below 20! TPS: {}", TPS));
                 });
                 Logger.error("Server TPS is below 20! TPS: " + TPS);
             }
 
-            final Component header = Component.text("§bYou are playing on §e§lMC.HYPIXEL.NET")
-                .append(Component.newline())
-                .append(Component.text("§7RAM USAGE: §8" + ramUsage + " MB"))
-                .append(Component.newline())
-                .append(Component.text("§7TPS: §8" + TPS))
-                .append(Component.newline());
+            final Text header = Text.of("""
+                <b>You are playing on <e><l>MC.HYPIXEL.NET</l>
+                <7>RAM USAGE: <8>{0} MB
+                <7>TPS: <8>{1}
+                """, ramUsage, TPS);
 
             // Send per-player footer with their active effects
             for (SkyBlockPlayer player : players) {
-                Component footer = Component.newline()
-                    .append(Component.text("§a§lActive Effects"))
-                    .append(Component.newline());
+                Text footer = Text.of("\n<a><l>Active Effects\n");
 
                 List<TemporaryStatistic> activeEffects = player.getStatistics().getDisplayableActiveEffects();
                 if (activeEffects.isEmpty()) {
-                    footer = footer.append(Component.text("§7No effects active. Drink potions or splash them on the"))
-                        .append(Component.newline())
-                        .append(Component.text("§7ground to buff yourself!"));
+                    footer = footer.append(
+                        "<7>No effects active. Drink potions or splash them on the\n<7>ground to buff yourself!");
                 } else {
                     for (TemporaryStatistic effect : activeEffects) {
-                        String color = effect.getDisplayColor() != null ? effect.getDisplayColor() : "§7";
+                        String color = effect.getDisplayColor() != null ? effect.getDisplayColor() : "<7>";
                         String name = effect.getDisplayName();
                         String duration = formatEffectDuration(effect.getRemainingMs());
-                        footer = footer.append(Component.text(color + name + " §f" + duration))
-                            .append(Component.newline());
+                        footer = footer.append(color + "{} <f>{}\n", name, duration);
                     }
                 }
 
-                footer = footer.append(Component.newline())
-                    .append(Component.text("§d§lCookie Buff"))
-                    .append(Component.newline())
-                    .append(Component.text("§7Not active! Obtain booster cookies from the community"))
-                    .append(Component.newline())
-                    .append(Component.text("§7shop in the hub."))
-                    .append(Component.newline())
-                    .append(Component.newline())
-                    .append(Component.text("§aRanks, Boosters & MORE! §c§lSTORE.HYPIXEL.NET"));
+                footer = footer.append("""
+
+                    <d><l>Cookie Buff</l>
+                    <7>Not active! Obtain booster cookies from the community
+                    <7>shop in the hub.
+
+                    <a>Ranks, Boosters & MORE! <c><l>STORE.HYPIXEL.NET""");
 
                 player.sendPlayerListHeaderAndFooter(header, footer);
             }
@@ -483,7 +478,7 @@ public record SkyBlockGenericLoader(HypixelTypeLoader typeLoader) {
                                         int amount = player.getCollection().get(collection.type());
                                         return new SkyBlockRecipe.CraftingResult(
                                             amount >= reward.requirement(),
-                                            new String[]{"§7You must have §c" + collection.type().getDisplayName()
+                                            new String[]{"<7>You must have <c>" + collection.type().getDisplayName()
                                                 + " Collection "
                                                 + StringUtility.getAsRomanNumeral(collection.getPlacementOf(reward))}
                                         );

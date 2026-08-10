@@ -5,7 +5,6 @@ import io.sentry.Sentry;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
@@ -25,13 +24,11 @@ import net.swofty.commons.protocol.objects.proxy.to.*;
 import net.swofty.commons.redis.ProxyHeartbeat;
 import net.swofty.commons.redis.RedisClient;
 import net.swofty.commons.redis.RedisMessageHandler;
-import net.swofty.commons.skyblock.PackSprite;
 import net.swofty.proxyapi.ProxyAPI;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.spark.Spark;
 import net.swofty.type.generic.*;
 import net.swofty.type.generic.i18n.HypixelTranslator;
-import net.swofty.type.generic.i18n.I18n;
 import net.swofty.type.ravengardgeneric.RavengardGenericLoader;
 import net.swofty.type.skyblockgeneric.SkyBlockGenericLoader;
 import org.reflections.Reflections;
@@ -141,12 +138,10 @@ public class Hypixel {
         new HypixelGenericLoader(typeLoader).initialize(minecraftServer);
 
         // Initialize TypeLoader
-        TagResolver[] resolvers = new TagResolver[0]; // this file is already full of bad code
         SkyBlockGenericLoader skyblockLoader = null;
         if (typeLoader instanceof SkyBlockTypeLoader) {
             skyblockLoader = new SkyBlockGenericLoader(typeLoader);
             skyblockLoader.initialize(minecraftServer);
-            resolvers = new TagResolver[]{PackSprite.TAG_RESOLVER};
         }
         if (typeLoader instanceof RavengardTypeLoader) {
             new RavengardGenericLoader(typeLoader).initialize(minecraftServer);
@@ -209,8 +204,7 @@ public class Hypixel {
             skyblockLoader.afterInitialize();
         }
 
-        HypixelTranslator translator = new HypixelTranslator(resolvers);
-        I18n.init(translator);
+        HypixelTranslator translator = new HypixelTranslator();
         GlobalTranslator.translator().addSource(translator);
         Logger.info("Loaded " + translator.keyCount() + " translation keys for default locale");
 
@@ -374,7 +368,7 @@ public class Hypixel {
                 Logger.error("Proxy heartbeat absent for ~{}s. Shutting down...",
                         PROXY_HEARTBEAT_MAX_MISSES * PROXY_HEARTBEAT_CHECK_SECONDS);
                 MinecraftServer.getConnectionManager().getOnlinePlayers()
-                        .forEach(player -> player.kick("§cServer has lost connection to the proxy, please rejoin"));
+                        .forEach(player -> player.kick("<c>Server has lost connection to the proxy, please rejoin"));
                 CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
                         .execute(() -> System.exit(0));
             }

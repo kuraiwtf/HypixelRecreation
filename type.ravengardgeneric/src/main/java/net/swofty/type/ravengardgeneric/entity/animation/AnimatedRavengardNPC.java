@@ -7,6 +7,7 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.Material;
+import net.swofty.commons.text.Text;
 import net.swofty.type.ravengardgeneric.entity.RavengardNPC;
 import net.swofty.type.ravengardgeneric.user.RavengardPlayer;
 
@@ -132,7 +133,7 @@ public class AnimatedRavengardNPC extends RavengardNPC {
             return;
         }
         if (clip.shopLine() != null && clip.dialogue() != null) {
-            player.sendMessage("§d" + clip.dialogue().speaker() + "§f: " + clip.shopLine());
+            player.sendMessage(speakerLine(clip.dialogue().speaker(), clip.shopLine()));
         }
         net.swofty.type.generic.gui.v2.ViewNavigator.get(player)
                 .push(new net.swofty.type.ravengardgeneric.gui.GUIShop(shop));
@@ -204,13 +205,17 @@ public class AnimatedRavengardNPC extends RavengardNPC {
         }
     }
 
-    private static String format(String speaker, RavengardAnimationClip.Line line) {
-        String prefix = "";
+    private static Text format(String speaker, RavengardAnimationClip.Line line) {
+        Text prefix = Text.empty();
         if (line.index() != null && line.total() != null) {
-            String indexColor = line.index().equals(line.total()) ? "§a" : "§7";
-            prefix = "§7[" + indexColor + line.index() + "§7/§a" + line.total() + "§7] ";
+            String indexTag = line.index().equals(line.total()) ? "<a>" : "<7>";
+            prefix = Text.of("<7>[" + indexTag + "{}<7>/<a>{}<7>] ", line.index(), line.total());
         }
-        return prefix + "§d" + speaker + "§f: " + line.text();
+        return prefix.append(speakerLine(speaker, line.text()));
+    }
+
+    private static Text speakerLine(String speaker, String text) {
+        return Text.of("<d>").append(Text.legacy(speaker)).append("<f>: ").append(Text.legacy(text));
     }
 
     public void play(RavengardAnimationPhase target) {

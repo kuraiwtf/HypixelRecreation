@@ -2,11 +2,11 @@ package net.swofty.type.replayviewer.playback.npc;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.InstanceContainer;
+import net.swofty.commons.text.Text;
 import net.swofty.type.replayviewer.entity.ReplayEntityManager;
 import net.swofty.type.replayviewer.entity.ReplayNpcTextEntity;
 import net.swofty.type.replayviewer.playback.ReplaySession;
@@ -72,7 +72,7 @@ public class NpcReplayManager {
         if (entity != null) {
             if (visible) {
                 String fullName = data.getFullDisplayName();
-                Component nameComponent = LegacyComponentSerializer.legacySection().deserialize(fullName);
+                Component nameComponent = Text.read(fullName).asComponent();
                 if (nameColor >= 0) {
                     nameComponent = nameComponent.color(TextColor.color(nameColor));
                 }

@@ -2,8 +2,8 @@ package net.swofty.type.bedwarsgame.game.v2.listener;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
 import net.swofty.commons.bedwars.map.BedWarsMapsConfig;
+import net.swofty.commons.text.Text;
 import net.swofty.type.bedwarsgame.events.custom.BedDestroyedEvent;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsGame;
 import net.swofty.type.bedwarsgame.user.BedWarsPlayer;
@@ -25,7 +25,9 @@ public class BedBrokenListener implements HypixelEventClass {
             throw new IllegalStateException("Destroyer team key is null for player " + destroyer.getUsername());
         }
 
-        game.broadcastMessage(Component.newline().append(Component.text("§f§lBED DESTRUCTION > " + teamKey.chatColor() + teamKey.getName() + " Bed §7has been destroyed by " + destroyerTeamKey.chatColor() + event.destroyer().getUsername() + "§7!")).appendNewline());
+        game.broadcastMessage(Text.of("\n<f><l>BED DESTRUCTION > </l>{} <7>has been destroyed by {}!\n",
+            Text.of("<color:{}>{} Bed", teamKey.chatColor(), teamKey.getName()),
+            Text.of("<color:{}>{}", destroyerTeamKey.chatColor(), destroyer.getUsername())));
 
         for (BedWarsPlayer player : game.getPlayers()) {
             player.playSound(Sound.sound(Key.key("minecraft:entity.wither.death"),

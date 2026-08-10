@@ -1,7 +1,5 @@
 package net.swofty.type.replayviewer.command;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.swofty.type.generic.command.CommandParameters;
 import net.swofty.type.generic.command.HypixelCommand;
 import net.swofty.type.generic.user.HypixelPlayer;
@@ -25,7 +23,7 @@ public class ShareCommand extends HypixelCommand {
 
 			var sessionOpt = TypeReplayViewerLoader.getSession(player.getUuid());
 			if (sessionOpt.isEmpty()) {
-				player.sendMessage(Component.text("You are not watching a replay!", NamedTextColor.RED));
+				player.sendMessage("<c>You are not watching a replay!");
 				return;
 			}
 

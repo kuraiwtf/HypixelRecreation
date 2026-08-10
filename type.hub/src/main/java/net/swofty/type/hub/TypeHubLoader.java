@@ -16,9 +16,9 @@ import net.minestom.server.world.attribute.EnvironmentAttribute;
 import net.swofty.commons.CustomWorlds;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.ServiceType;
-import net.swofty.commons.StringUtility;
 import net.swofty.commons.redis.RedisMessageHandler;
 import net.swofty.commons.skyblock.item.ItemType;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.type.generic.HypixelConst;
 import net.swofty.type.generic.SkyBlockTypeLoader;
@@ -109,10 +109,10 @@ public class TypeHubLoader implements SkyBlockTypeLoader {
 		});
 
 		GlassDisplay.create(new SkyBlockItem(ItemType.ABIPHONE_CONTACTS_TRIO), HypixelConst.getInstanceContainer(), new Pos(70, 81, -63), (player, _) -> {
-			player.sendMessage("§eTalk to §dElizabeth §ein the §bCommunity Center §eto purchase!");
+			player.sendMessage("<e>Talk to <d>Elizabeth <e>in the <b>Community Center <e>to purchase!");
 		});
 		GlassDisplay.create(new SkyBlockItem(ItemType.ABIPHONE_BASIC), HypixelConst.getInstanceContainer(), new Pos(70, 81, -56), (player, _) -> {
-			player.sendMessage(Component.text("§eTalk to §6Alda §eto purchase!"));
+			player.sendMessage("<e>Talk to <6>Alda <e>to purchase!");
 		});
 		GlassDisplay.create(new SkyBlockItem(ItemType.DIRT), HypixelConst.getInstanceContainer(), new Pos(25, 74, -44), (player, _) -> {
 			player.notImplemented();
@@ -181,10 +181,10 @@ public class TypeHubLoader implements SkyBlockTypeLoader {
 
 	private static String[] electionLines() {
 		return new String[]{
-			"§e§lMAYOR ELECTIONS",
-			"§bYear " + SkyBlockCalendar.getYear(),
-			"§eTime left: §a" + StringUtility.formatTimeLeft(
-				SkyBlockCalendar.ticksUntilEvent(CalendarEvent.ELECTION_CLOSE) * 50L)
+			"<e><l>MAYOR ELECTIONS",
+			Text.of("<b>Year {}", SkyBlockCalendar.getYear()).serialize(),
+			Text.of("<e>Time left: <a>{:time}",
+				SkyBlockCalendar.ticksUntilEvent(CalendarEvent.ELECTION_CLOSE) * 50L).serialize()
 		};
 	}
 

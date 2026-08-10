@@ -26,7 +26,7 @@ public class ViewerCommand extends HypixelCommand {
             HypixelPlayer player = (HypixelPlayer) sender;
             TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
                     ReplaySession::play,
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, ArgumentType.Literal("play"));
 
@@ -35,7 +35,7 @@ public class ViewerCommand extends HypixelCommand {
             HypixelPlayer player = (HypixelPlayer) sender;
             TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
                     ReplaySession::pause,
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, ArgumentType.Literal("pause"));
 
@@ -47,10 +47,10 @@ public class ViewerCommand extends HypixelCommand {
                 float speed = Float.parseFloat(value);
                 TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
                         session -> session.setPlaybackSpeed(speed),
-                        () -> player.sendMessage("§cNo active replay session.")
+                        () -> player.sendMessage("<c>No active replay session.")
                 );
             } catch (NumberFormatException e) {
-                player.sendMessage("§cInvalid speed. Use a number like 0.5, 1, 2, etc.");
+                player.sendMessage("<c>Invalid speed. Use a number like 0.5, 1, 2, etc.");
             }
         }, ArgumentType.Literal("speed"), valueArg);
 
@@ -68,10 +68,10 @@ public class ViewerCommand extends HypixelCommand {
                                 session.skipBackward(-seconds);
                             }
                         },
-                        () -> player.sendMessage("§cNo active replay session.")
+                        () -> player.sendMessage("<c>No active replay session.")
                 );
             } catch (NumberFormatException e) {
-                player.sendMessage("§cInvalid seconds. Use a number like 10, -10, etc.");
+                player.sendMessage("<c>Invalid seconds. Use a number like 10, -10, etc.");
             }
         }, ArgumentType.Literal("skip"), valueArg);
 
@@ -85,10 +85,10 @@ public class ViewerCommand extends HypixelCommand {
                         if (tick >= 0) {
                             session.seekTo(tick);
                         } else {
-                            player.sendMessage("§cInvalid time. Use format like 1:30 or tick number.");
+                            player.sendMessage("<c>Invalid time. Use format like 1:30 or tick number.");
                         }
                     },
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, ArgumentType.Literal("goto"), valueArg);
 
@@ -97,7 +97,7 @@ public class ViewerCommand extends HypixelCommand {
             HypixelPlayer player = (HypixelPlayer) sender;
             TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
                     session -> session.seekTo(0),
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, ArgumentType.Literal("restart"));
 
@@ -105,7 +105,7 @@ public class ViewerCommand extends HypixelCommand {
         command.addSyntax((sender, context) -> {
             HypixelPlayer player = (HypixelPlayer) sender;
             TypeReplayViewerLoader.removeSession(player.getUuid());
-            player.sendMessage("§aLeaving replay...");
+            player.sendMessage("<a>Leaving replay...");
             // Would send player back to lobby
         }, ArgumentType.Literal("leave"));
     }

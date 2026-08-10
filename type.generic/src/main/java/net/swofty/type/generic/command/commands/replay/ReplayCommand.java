@@ -1,7 +1,5 @@
 package net.swofty.type.generic.command.commands.replay;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.ServiceType;
@@ -28,7 +26,7 @@ public class ReplayCommand extends HypixelCommand {
 		var hexArg = ArgumentType.String("hex");
 
 		command.setDefaultExecutor((sender, _) ->
-			sender.sendMessage(Component.text("Usage: /replay <uuid> [hex]", NamedTextColor.RED)));
+			sender.sendMessage("<c>Usage: /replay \\<uuid> [hex]"));
 
 		command.addSyntax((sender, context) -> {
 			HypixelPlayer player = (HypixelPlayer) sender;
@@ -50,7 +48,7 @@ public class ReplayCommand extends HypixelCommand {
 
 			String cleanHex = hex.startsWith("#") ? hex : "#" + hex;
 			if (cleanHex.length() != 9) {
-				player.sendMessage(Component.text("Invalid share code format.", NamedTextColor.RED));
+				player.sendMessage("<c>Invalid share code format.");
 				return;
 			}
 
@@ -62,25 +60,25 @@ public class ReplayCommand extends HypixelCommand {
 		try {
 			return UUID.fromString(uuidStr);
 		} catch (IllegalArgumentException e) {
-			player.sendMessage(Component.text("Invalid replay ID format. Must be a valid UUID.", NamedTextColor.RED));
+			player.sendMessage("<c>Invalid replay ID format. Must be a valid UUID.");
 			return null;
 		}
 	}
 
 	private void sendToReplayViewer(HypixelPlayer player, UUID replayId, String shareCode) {
-		player.sendMessage(Component.text("Loading replay...", NamedTextColor.GREEN));
+		player.sendMessage("<a>Loading replay...");
 
 		ProxyService replayService = new ProxyService(ServiceType.REPLAY);
 		var request = new ChooseReplayProtocolObject.ChooseReplayMessage(player.getUuid(), replayId.toString(), shareCode);
 		replayService.<ChooseReplayProtocolObject.ChooseReplayMessage, ChooseReplayProtocolObject.ChooseReplayResponse>handleRequest(request).thenAccept(response -> {
 			if (!response.error()) {
-				player.sendMessage(Component.text("Sending you to the Replay Viewer...", NamedTextColor.GRAY));
+				player.sendMessage("<7>Sending you to the Replay Viewer...");
 				player.sendTo(ServerType.REPLAY_VIEWER);
 			} else {
-				player.sendMessage(Component.text("Replay not found or failed to load.", NamedTextColor.RED));
+				player.sendMessage("<c>Replay not found or failed to load.");
 			}
 		}).exceptionally(e -> {
-			player.sendMessage(Component.text("Failed to load replay: " + e.getMessage(), NamedTextColor.RED));
+			player.sendMessage("<c>Failed to load replay: {}", e.getMessage());
 			return null;
 		});
 	}

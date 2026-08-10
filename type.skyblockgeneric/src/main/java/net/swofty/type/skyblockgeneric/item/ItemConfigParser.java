@@ -1,5 +1,6 @@
 package net.swofty.type.skyblockgeneric.item;
 
+import net.swofty.commons.text.Text;
 import io.sentry.Sentry;
 import net.minestom.server.color.Color;
 import net.minestom.server.item.ItemAnimation;
@@ -160,7 +161,7 @@ public class ItemConfigParser {
 					yield component;
 				}
 				case "CUSTOM_DISPLAY_NAME" ->
-						new CustomDisplayNameComponent((_) -> safeConfig.getString("display_name", ""));
+						new CustomDisplayNameComponent((_) -> Text.parseLenient(safeConfig.getString("display_name", "")));
 				case "DECORATION_HEAD" -> {
 					String texture = safeConfig.getString("texture", "value", "");
 					yield new DecorationHeadComponent(texture);

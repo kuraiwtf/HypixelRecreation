@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.timer.Scheduler;
 import net.minestom.server.timer.TaskSchedule;
+import net.swofty.commons.text.Text;
 import net.swofty.type.skyblockgeneric.commands.MinionGenerationCommand;
 
 import java.time.Duration;
@@ -219,7 +220,7 @@ public final class SkyBlockCalendar {
         return ((int) (elapsed / DAY) % 31) + 1;
     }
 
-    public static String getDisplay(long elapsed) {
+    public static Text getDisplay(long elapsed) {
         boolean isDaytime = true;
         int currentTime = (int) ((elapsed % DAY) - 6000);
         if (currentTime < 0) currentTime += DAY;
@@ -232,12 +233,10 @@ public final class SkyBlockCalendar {
         String timePeriod = hours >= 12 ? "pm" : "am";
         hours = hours > 12 ? hours - 12 : (hours == 0 ? 12 : hours);
 
-        String symbol = isDaytime ? "§e" + DAY_SYMBOL : "§b" + NIGHT_SYMBOL;
-        String message = String.format("%d:%s%s %s", hours, formattedMinutes, timePeriod, symbol);
+        Text symbol = isDaytime ? Text.of("<e>{}", DAY_SYMBOL) : Text.of("<b>{}", NIGHT_SYMBOL);
 
-        if (MinionGenerationCommand.divisionFactor != 1) {
-            message += " §c(Minion Speed: " + MinionGenerationCommand.divisionFactor + ")";
-        }
-        return message;
+        return Text.of("{}:{}{} {}", hours, formattedMinutes, timePeriod, symbol)
+                .appendIf(MinionGenerationCommand.divisionFactor != 1,
+                        " <c>(Minion Speed: {})", MinionGenerationCommand.divisionFactor);
     }
 }

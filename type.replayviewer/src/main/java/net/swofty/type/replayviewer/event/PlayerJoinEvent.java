@@ -3,7 +3,6 @@ package net.swofty.type.replayviewer.event;
 import lombok.SneakyThrows;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.LightingChunk;
@@ -76,7 +75,7 @@ public class PlayerJoinEvent implements HypixelEventClass {
                 ScheduleUtility.delay(() -> {
                     session.addViewer(player);
                     player.teleport(spawnPos);
-                    player.sendMessage("§aJoined existing replay session.");
+                    player.sendMessage("<a>Joined existing replay session.");
                 }, 20);
             });
             return;
@@ -91,7 +90,7 @@ public class PlayerJoinEvent implements HypixelEventClass {
         CompletableFuture.runAsync(() -> ScheduleUtility.delay(() -> loadReplay(player, replayId, instance), 20));
     }
 
-    private void loadReplay(Player player, UUID replayId, InstanceContainer instance) {
+    private void loadReplay(HypixelPlayer player, UUID replayId, InstanceContainer instance) {
         try {
             // Get share code if present
             String shareCode = TypedViewReplayHandler.getAndRemoveShareCode(player.getUuid());
@@ -145,7 +144,7 @@ public class PlayerJoinEvent implements HypixelEventClass {
                 );
 
                 if (integrityReport.hasIssues()) {
-                    player.sendMessage("§cSome moments may be missing. " + ReplayError.REPLAY_INCOMPLETE.format());
+                    player.sendMessage("<c>Some moments may be missing. {}", ReplayError.REPLAY_INCOMPLETE.format());
                 }
             }
 
@@ -165,10 +164,10 @@ public class PlayerJoinEvent implements HypixelEventClass {
                 if (shareData != null) {
                     spawnPos = shareData.position();
                     startTick = Math.min(shareData.tick(), metadata.getDurationTicks() - 1);
-                    player.sendMessage("§aRestored shared replay position");
+                    player.sendMessage("<a>Restored shared replay position");
                 } else {
                     spawnPos = new Pos(metadata.getMapCenterX(), 100, metadata.getMapCenterZ());
-                    player.sendMessage("§eInvalid share code, using default position");
+                    player.sendMessage("<e>Invalid share code, using default position");
                 }
             } else {
                 spawnPos = new Pos(metadata.getMapCenterX(), 100, metadata.getMapCenterZ());
@@ -189,7 +188,7 @@ public class PlayerJoinEvent implements HypixelEventClass {
         }
     }
 
-    private void loadMapData(String mapHash, InstanceContainer instance, Player player) {
+    private void loadMapData(String mapHash, InstanceContainer instance, HypixelPlayer player) {
         if (mapHash == null || mapHash.isEmpty()) {
             Logger.warn("No map hash provided, skipping map load");
             return;
@@ -205,7 +204,7 @@ public class PlayerJoinEvent implements HypixelEventClass {
 
             if (!response.success() || !response.found()) {
                 Logger.warn("Map {} not found in replay service", mapHash);
-                player.sendMessage("§eMap data not available, using empty world.");
+                player.sendMessage("<e>Map data not available, using empty world.");
                 return;
             }
 
@@ -219,7 +218,7 @@ public class PlayerJoinEvent implements HypixelEventClass {
             Logger.info("Loaded map {} ({} bytes)", mapHash, response.compressedData().length);
         } catch (Exception e) {
             Logger.error(e, "Failed to load map {}", mapHash);
-            player.sendMessage("§eFailed to load map: " + e.getMessage());
+            player.sendMessage("<e>Failed to load map: {}", e.getMessage());
         }
     }
 }

@@ -1,5 +1,6 @@
 package net.swofty.type.ravengardgeneric.gui;
 
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.gui.v2.DefaultState;
 import net.swofty.type.generic.gui.v2.ViewLayout;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
@@ -51,18 +52,19 @@ public class GUIAbilityPage extends RavengardView {
             int equippedSlot = equipped.indexOf(ability) + 1;
 
             RavengardItems.Builder button = RavengardItems.button(ability)
-                    .label("Ability " + (index + 1) + " - " + ability.getDisplayName())
+                    .label(Text.of("Ability {} - {}", index + 1, ability.getDisplayName()))
                     .lore(ability.getWrappedDescription())
                     .blankLine()
-                    .lore("§7Cooldown: §e" + ability.getCooldownText())
+                    .lore(Text.of("<7>Cooldown: <e>{}", ability.getCooldownText()))
                     .blankLine();
 
             if (equippedSlot > 0) {
-                button.lore("§a§lSELECTED",
-                        " §7This ability is already in §eslot " + (equippedSlot == 1 ? "one" : "two") + "§7!");
+                button.lore("<a><l>SELECTED")
+                        .lore(Text.of(" <7>This ability is already in <e>slot {}<7>!",
+                                equippedSlot == 1 ? "one" : "two"));
             } else {
-                button.lore("§c§lLOCKED",
-                        " §7Purchase this skill for §e1§7 Ability Points to use it.");
+                button.lore("<c><l>LOCKED",
+                        " <7>Purchase this skill for <e>1<7> Ability Points to use it.");
             }
 
             place(layout, ABILITY_SLOTS[index], button);

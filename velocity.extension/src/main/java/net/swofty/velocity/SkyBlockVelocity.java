@@ -57,6 +57,7 @@ import net.swofty.commons.redis.ProxyHeartbeat;
 import net.swofty.commons.redis.RedisClient;
 import net.swofty.commons.redis.RedisEndpoint;
 import net.swofty.commons.redis.RedisMessageHandler;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.redisapi.api.RedisAPI;
 import net.swofty.velocity.command.*;
@@ -75,6 +76,7 @@ import net.swofty.velocity.redis.RedisHandlerRegistry;
 import net.swofty.velocity.redis.listeners.ListenerStaffChat;
 import net.swofty.velocity.redis.listeners.ListenerStorePurchaseFulfillment;
 import net.swofty.velocity.testflow.TestFlowManager;
+import net.swofty.velocity.text.ProxyText;
 import net.swofty.velocity.viaversion.SkyBlockPlatform;
 import net.swofty.velocity.viaversion.SkyBlockPlatformLoader;
 import net.swofty.velocity.viaversion.injector.SkyBlockViaInjector;
@@ -298,7 +300,7 @@ public class SkyBlockVelocity {
             ) && found1) {
                 ActivePunishment punishment = new ActivePunishment(
                     type1, id, reason1, at, tags1);
-                player.disconnect(PunishmentMessages.banMessage(punishment));
+                ProxyText.disconnect(player, PunishmentMessages.banMessage(punishment));
                 return true;
             }
 
@@ -330,40 +332,38 @@ public class SkyBlockVelocity {
                 unauthenticated.add(player.getUniqueId());
                 event.setInitialServer(limboServer);
 
-                player.sendPlainMessage("§aHey! You need to authenticate your account to play on this server.");
-                player.sendPlainMessage("§aAll passwords are encrypted using modern standards, so you're safe!");
-                player.sendPlainMessage(" ");
+                player.sendMessage(Text.of("<a>Hey! You need to authenticate your account to play on this server."));
+                player.sendMessage(Text.of("<a>All passwords are encrypted using modern standards, so you're safe!"));
+                player.sendMessage(Text.of(" "));
 
                 AuthenticationDatabase.AuthenticationData data = new AuthenticationDatabase(player.getUniqueId()).getAuthenticationData();
                 if (data == null) {
-                    player.sendPlainMessage("§eYou must first register to play this server!");
-                    player.sendPlainMessage("§eIn the Minecraft chat, type §6/register <password> <password>§e.");
+                    player.sendMessage(Text.of("<e>You must first register to play this server!"));
+                    player.sendMessage(Text.of("<e>In the Minecraft chat, type <6>/register \\<password> \\<password><e>."));
                 } else {
-                    player.sendPlainMessage("§eIn the Minecraft chat, type §6/login <password>§e.");
+                    player.sendMessage(Text.of("<e>In the Minecraft chat, type <6>/login \\<password><e>."));
                 }
 
                 server.getScheduler().buildTask(SkyBlockVelocity.getPlugin(), () -> {
                     if (player.isActive() && unauthenticated.contains(player.getUniqueId())) {
-                        player.disconnect(Component.text("§cYou have been kicked for not authenticating your account."));
+                        ProxyText.disconnect(player, "<c>You have been kicked for not authenticating your account.");
                     }
                 }).delay(Duration.ofSeconds(30)).schedule();
                 return;
             }
 
             if (!GameManager.hasType(ServerType.PROTOTYPE_LOBBY) || !GameManager.isAnyEmpty(ServerType.PROTOTYPE_LOBBY)) {
-                player.disconnect(
-                    Component.text("§cThere are no Prototype Lobby servers available at the moment.")
-                );
+                ProxyText.disconnect(player, "<c>There are no Prototype Lobby servers available at the moment.");
                 return;
             }
 
             List<GameManager.GameServer> gameServers = GameManager.getFromType(ServerType.PROTOTYPE_LOBBY);
             if (TestFlowManager.isPlayerInTestFlow(player.getUsername())) {
                 TestFlowManager.ProxyTestFlowInstance instance = TestFlowManager.getTestFlowForPlayer(player.getUsername());
-                player.sendPlainMessage("§7You are currently in test flow " + instance.getName() + ".");
-                player.sendPlainMessage("§7Servers involved include " + instance.getGameServers().stream().map(GameManager.GameServer::displayName).collect(Collectors.joining(", ")));
-                player.sendPlainMessage("§7We are expecting " + instance.getTotalExpectedServers() + " servers to instantiate.");
-                player.sendPlainMessage("§7Test flow has been running for " + instance.getUptime() / 1000 + " seconds.");
+                player.sendMessage(Text.of("<7>You are currently in test flow {}.", instance.getName()));
+                player.sendMessage(Text.of("<7>Servers involved include {}", instance.getGameServers().stream().map(GameManager.GameServer::displayName).collect(Collectors.joining(", "))));
+                player.sendMessage(Text.of("<7>We are expecting {} servers to instantiate.", instance.getTotalExpectedServers()));
+                player.sendMessage(Text.of("<7>Test flow has been running for {} seconds.", instance.getUptime() / 1000));
 
                 gameServers.removeIf(server -> {
                     TestFlowManager.ProxyTestFlowInstance testFlowInstance = TestFlowManager.getFromServerUUID(
@@ -383,9 +383,7 @@ public class SkyBlockVelocity {
             }
 
             if (gameServers.isEmpty()) {
-                player.disconnect(
-                    Component.text("§cThere are no servers (type=PROTOTYPE_LOBBY) servers available at the moment.")
-                );
+                ProxyText.disconnect(player, "<c>There are no servers (type=PROTOTYPE_LOBBY) servers available at the moment.");
                 return;
             }
 
@@ -418,9 +416,8 @@ public class SkyBlockVelocity {
 
         // Send the player to the limbo
         RegisteredServer originalServer = event.getServer();
-        Component reason = event.getServerKickReason().orElse(Component.text(
-            "§cYour connection to the server was lost. Please try again later."
-        ));
+        Component reason = event.getServerKickReason().orElseGet(() ->
+            ProxyText.render("<c>Your connection to the server was lost. Please try again later."));
         ServerType serverType = GameManager.getTypeFromRegisteredServer(originalServer);
 
         event.setResult(KickedFromServerEvent.RedirectPlayer.create(
@@ -457,11 +454,11 @@ public class SkyBlockVelocity {
                     transferHandler.transferTo(server.registeredServer());
 
                     if (!serverTypeToTry.isSkyBlock()) {
-                        event.getPlayer().sendPlainMessage("§cAn exception occurred in your connection, so you were put into the Prototype Lobby.");
+                        event.getPlayer().sendMessage(Text.of("<c>An exception occurred in your connection, so you were put into the Prototype Lobby."));
                     } else {
-                        event.getPlayer().sendPlainMessage("§cAn exception occurred in your connection, so you were put into another SkyBlock server.");
+                        event.getPlayer().sendMessage(Text.of("<c>An exception occurred in your connection, so you were put into another SkyBlock server."));
                     }
-                    event.getPlayer().sendPlainMessage("§7Sending to server " + server.displayName() + "...");
+                    event.getPlayer().sendMessage(Text.of("<7>Sending to server {}...", server.displayName()));
                 } catch (Exception e) {
                     Logger.getAnonymousLogger().log(Level.SEVERE, "An exception occurred while trying to transfer " + event.getPlayer().getUsername() + " to " + serverType, e);
                     transferHandler.forceRemoveFromLimbo();
@@ -475,7 +472,7 @@ public class SkyBlockVelocity {
         event.setPing(new ServerPing(
             event.getPing().getVersion(),
             null,
-            Component.text("               §aHypixel Recreation §c[26.x]"),
+            ProxyText.render("               <a>Hypixel Recreation <c>[26.x]"),
             event.getPing().getFavicon().orElse(null)
         ));
     }
@@ -484,22 +481,22 @@ public class SkyBlockVelocity {
     public void onPlayerConnect(ServerPostConnectEvent event) {
         Player player = event.getPlayer();
         if (!(player.getProtocolVersion().getProtocol() >= ProtocolVersion.MAXIMUM_VERSION.getProtocol()) && ConfigProvider.settings().getIntegrations().isViaVersion()) {
-            String message = "\n" +
-                "§6§l----------- §cServer Notice §6§l-----------\n" +
-                "§cAlthough we do support versions prior to §6" + ProtocolVersion.MAXIMUM_VERSION.getVersionIntroducedIn() + "§c, the experience may be degraded.\n" +
-                "§cIf you experience any issues, please test if it also occurs on §6" + ProtocolVersion.MAXIMUM_VERSION.getVersionIntroducedIn() + "§c before reporting it.\n" +
-                "§6§l---------------------------------\n" +
-                "\n";
+            String supportedFrom = ProtocolVersion.MAXIMUM_VERSION.getVersionIntroducedIn();
 
-            player.sendMessage(Component.text(message));
+            player.sendMessage(Text.of("\n" +
+                "<6><l>----------- <r><c>Server Notice <6><l>-----------\n" +
+                "<r><c>Although we do support versions prior to <6>{}<c>, the experience may be degraded.\n" +
+                "<c>If you experience any issues, please test if it also occurs on <6>{}<c> before reporting it.\n" +
+                "<6><l>---------------------------------\n" +
+                "\n", supportedFrom, supportedFrom));
         }
 
         player.getCurrentServer().ifPresent(connection -> {
             if (connection.getServer() == limboServer) {
                 if (unauthenticated.contains(player.getUniqueId())) return;
 
-                player.sendMessage(Component.text("§cYou were spawned in Limbo."));
-                player.sendMessage(Component.text("§b/limbo for more information."));
+                player.sendMessage(Text.of("<c>You were spawned in Limbo."));
+                player.sendMessage(Text.of("<b>/limbo for more information."));
             }
         });
     }

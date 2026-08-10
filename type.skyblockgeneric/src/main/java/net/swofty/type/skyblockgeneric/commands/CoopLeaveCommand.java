@@ -25,17 +25,17 @@ public class CoopLeaveCommand extends HypixelCommand {
             SkyBlockPlayer player = (SkyBlockPlayer) sender;
 
             if (!player.isCoop()) {
-                player.sendMessage("§b[Co-op] §cYou are not on a coop profile!");
+                player.sendMessage("<b>[Co-op] <c>You are not on a coop profile!");
                 return;
             }
 
             if (player.getProfiles().getProfiles().size() == 1) {
-                player.sendMessage("§b[Co-op] §cYou cannot leave your last profile!");
-                player.sendMessage("§b[Co-op] §eMake another profile before deleting this one.");
+                player.sendMessage("<b>[Co-op] <c>You cannot leave your last profile!");
+                player.sendMessage("<b>[Co-op] <e>Make another profile before deleting this one.");
                 return;
             }
 
-            player.kick("§cYou must reconnect for this change to take effect");
+            player.kick("<c>You must reconnect for this change to take effect");
 
             CoopDatabase.Coop coop = CoopDatabase.getFromMember(player.getUuid());
             coop.members().remove(player.getUuid());

@@ -69,7 +69,7 @@ public class RyanScene {
 		if (entity == null || entity.getInstance() == null) return;
 
 		if (isInView(entity.getInstance(), pos, player)) {
-			ryan.sendNPCMessage(player, "Hey, you're not part of our §cCult§f! Get out of here!");
+			ryan.sendNPCMessage(player, "Hey, you're not part of our <c>Cult<f>! Get out of here!");
 
 			player.setSpeedManaged(true);
 

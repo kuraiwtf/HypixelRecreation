@@ -14,7 +14,7 @@ public class NPCCentauri extends HypixelNPC {
         super(new HumanConfiguration() {
             @Override
             public String[] holograms(HypixelPlayer player) {
-                return new String[]{"Centauri", "§e§lCLICK"};
+                return new String[]{"Centauri", "<e><l>CLICK"};
             }
 
             @Override

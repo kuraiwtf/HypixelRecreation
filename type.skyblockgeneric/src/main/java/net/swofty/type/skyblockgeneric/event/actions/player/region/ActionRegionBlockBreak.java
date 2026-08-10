@@ -44,7 +44,7 @@ public class ActionRegionBlockBreak implements HypixelEventClass {
             }
             region.setPos1(event.getBlockPosition());
             RegionSelectorComponent.getPlayerRegionSelection().put(player, region);
-            player.sendMessage("§aPosition 1 set to §e" + event.getBlockPosition() + "§a.");
+            player.sendMessage("<a>Position 1 set to <e>{}<a>.", event.getBlockPosition());
             event.setCancelled(true);
             return;
         }

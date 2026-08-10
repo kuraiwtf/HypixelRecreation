@@ -18,6 +18,7 @@ import net.minestom.server.timer.TaskSchedule;
 import net.swofty.commons.ServerType;
 import net.swofty.commons.skyblock.item.ItemType;
 import net.swofty.commons.skyblock.statistics.ItemStatistic;
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.HypixelConst;
 import net.swofty.type.generic.entity.hologram.HologramEntity;
 import net.swofty.type.skyblockgeneric.hunting.AttributeEffectService;
@@ -432,22 +433,25 @@ public final class ForagingTreeManager {
 
         private void updateHologram(Instance instance) {
             int percent = Math.min(100, (int) Math.round(broken.size() * 100.0 / originalBlocks.size()));
-            String title = "§2§l" + kind.name() + " TREE §b" + percent + "%";
-            String contributors = "§7by " + contributions.values().stream()
+            Text title = Text.of("<2><l>{} TREE </l><b>{}%", kind.name(), percent);
+            List<Text> contributorNames = contributions.values().stream()
                     .sorted(Comparator.comparingInt(Contribution::logs).reversed())
                     .map(Contribution::name)
-                    .reduce((left, right) -> left + "§7, " + right).orElse("§7Unknown");
-            String[] lines = {title, contributors};
+                    .toList();
+            Text contributors = Text.of("<7>by ").append(contributorNames.isEmpty()
+                    ? Text.of("<7>Unknown")
+                    : Text.join(Text.of("<7>, "), contributorNames));
+            List<Text> lines = List.of(title, contributors);
             Pos position = hologramPosition();
             if (hologram.isEmpty()) {
-                for (int i = 0; i < lines.length; i++) {
-                    HologramEntity entity = new HologramEntity(lines[i]);
+                for (int i = 0; i < lines.size(); i++) {
+                    HologramEntity entity = new HologramEntity(lines.get(i));
                     entity.setAutoViewable(true);
                     entity.setInstance(instance, position.add(0, 0.3 - i * 0.3, 0));
                     hologram.add(entity);
                 }
             } else {
-                for (int i = 0; i < lines.length; i++) hologram.get(i).setText(lines[i]);
+                for (int i = 0; i < lines.size(); i++) hologram.get(i).setText(lines.get(i));
             }
         }
 
@@ -637,7 +641,7 @@ public final class ForagingTreeManager {
 
     private enum Axis {X, Y, Z}
 
-    private record Contribution(String name, int logs) {
+    private record Contribution(Text name, int logs) {
     }
 
     private record Column(int x, int z) {

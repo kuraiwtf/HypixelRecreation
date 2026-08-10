@@ -3,7 +3,7 @@ package net.swofty.type.replayviewer.item.impl;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.event.trait.PlayerInstanceEvent;
 import net.minestom.server.item.ItemStack;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.user.HypixelPlayer;
 import net.swofty.type.replayviewer.TypeReplayViewerLoader;
 import net.swofty.type.replayviewer.item.ReplayItem;
@@ -17,7 +17,7 @@ public class FasterItem extends ReplayItem {
 
     @Override
     public ItemStack getBlandItem() {
-        return ItemStackCreator.getStackHead("§aIncrease Speed", "cf3821aab0a5abfe7f4937ac28ec8e31a3360cb515c11046ff750ae2a0a391af").build();
+        return ItemStacks.head("cf3821aab0a5abfe7f4937ac28ec8e31a3360cb515c11046ff750ae2a0a391af", "<a>Increase Speed").build();
     }
 
 
@@ -27,7 +27,7 @@ public class FasterItem extends ReplayItem {
         HypixelPlayer player = (HypixelPlayer) event.getPlayer();
         TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
             ReplaySession::cycleSpeedUp,
-            () -> player.sendMessage("§cNo active replay session.")
+            () -> player.sendMessage("<c>No active replay session.")
         );
     }
 

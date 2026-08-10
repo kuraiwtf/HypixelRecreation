@@ -6,8 +6,8 @@ import net.minestom.server.inventory.click.Click;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.potion.TimedPotion;
-import net.swofty.commons.StringUtility;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
+import net.swofty.commons.text.Text;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.gui.v2.Components;
 import net.swofty.type.generic.gui.v2.StatefulView;
 import net.swofty.type.generic.gui.v2.ViewConfiguration;
@@ -35,13 +35,13 @@ public class GUIViewPlayer implements StatefulView<GUIViewPlayer.State> {
 
     @Override
     public ViewConfiguration<State> configuration() {
-        return ViewConfiguration.withString((state, ctx) -> {
+        return ViewConfiguration.withText((state, ctx) -> {
             var sessionOpt = TypeReplayViewerLoader.getSession(ctx.player());
             if (sessionOpt.isEmpty()) {
-                return "Player";
+                return Text.of("Player");
             }
 
-            return state.entity != null ? getDisplayName(state.entity) : "Player";
+            return state.entity != null ? getDisplayName(state.entity) : Text.of("Player");
         }, InventoryType.CHEST_2_ROW);
     }
 
@@ -49,13 +49,10 @@ public class GUIViewPlayer implements StatefulView<GUIViewPlayer.State> {
     public void layout(ViewLayout<State> layout, State state, ViewContext ctx) {
         var sessionOpt = TypeReplayViewerLoader.getSession(ctx.player());
         if (sessionOpt.isEmpty()) {
-            layout.slot(4, ItemStackCreator.getStack(
-                "§cNo Replay Session",
-                Material.BARRIER,
-                1,
-                "§7You are not currently watching",
-                "§7a replay."
-            ));
+            layout.slot(4, ItemStacks.item(Material.BARRIER, 1, """
+                    <c>No Replay Session
+                    <7>You are not currently watching
+                    <7>a replay."""));
             Components.back(layout, 13, ctx);
             return;
         }
@@ -64,35 +61,23 @@ public class GUIViewPlayer implements StatefulView<GUIViewPlayer.State> {
         ReplayPlayerEntity replayPlayer = state.entity;
 
         if (replayPlayer == null) {
-            layout.slot(4, ItemStackCreator.getStack(
-                "§cPlayer Not Found",
-                Material.BARRIER,
-                1,
-                "§7This player entity is not",
-                "§7available at this timestamp."
-            ));
+            layout.slot(4, ItemStacks.item(Material.BARRIER, 1, """
+                    <c>Player Not Found
+                    <7>This player entity is not
+                    <7>available at this timestamp."""));
             Components.back(layout, 49, ctx);
             return;
         }
 
-        String displayName = getDisplayName(replayPlayer);
-        ItemStack.Builder head = replayPlayer.getSkin() != null
-            ? ItemStackCreator.getStackHead(
-            displayName,
-            replayPlayer.getSkin(),
-            1,
-            "§7Health: §f" + Math.max(0, Math.round(replayPlayer.getHealth())),
-            "",
-            "§eRight Click for first person!"
-        )
-            : ItemStackCreator.getStack(
-            displayName,
-            Material.PLAYER_HEAD,
-            1,
-            "§7Health: §f" + Math.max(0, Math.round(replayPlayer.getHealth())),
-            "",
-            "§eRight Click for first person!"
+        Text displayName = getDisplayName(replayPlayer);
+        List<Text> headLore = List.of(
+            Text.of("<7>Health: <f>{}", Math.max(0, Math.round(replayPlayer.getHealth()))),
+            Text.empty(),
+            Text.of("<e>Right Click for first person!")
         );
+        ItemStack.Builder head = replayPlayer.getSkin() != null
+            ? ItemStacks.head(replayPlayer.getSkin(), 1, displayName, headLore)
+            : ItemStacks.item(Material.PLAYER_HEAD, 1, displayName, headLore);
 
         layout.slot(0, head, (click, c) -> {
             if (click.click() instanceof Click.Right) {
@@ -105,65 +90,48 @@ public class GUIViewPlayer implements StatefulView<GUIViewPlayer.State> {
         });
 
         layout.slot(1, createEffectsItem(replayPlayer));
-        layout.autoUpdating(3, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.MAIN_HAND), "§cEmpty main hand slot."), Duration.ofSeconds(1));
-        layout.autoUpdating(5, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.HELMET), "§cEmpty helmet slot."), Duration.ofSeconds(1));
-        layout.autoUpdating(6, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.CHESTPLATE), "§cEmpty chestplate slot."), Duration.ofSeconds(1));
-        layout.autoUpdating(7, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.LEGGINGS), "§cEmpty leggings slot."), Duration.ofSeconds(1));
-        layout.autoUpdating(8, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.BOOTS), "§cEmpty boots slot."), Duration.ofSeconds(1));
+        layout.autoUpdating(3, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.MAIN_HAND), "<c>Empty main hand slot."), Duration.ofSeconds(1));
+        layout.autoUpdating(5, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.HELMET), "<c>Empty helmet slot."), Duration.ofSeconds(1));
+        layout.autoUpdating(6, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.CHESTPLATE), "<c>Empty chestplate slot."), Duration.ofSeconds(1));
+        layout.autoUpdating(7, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.LEGGINGS), "<c>Empty leggings slot."), Duration.ofSeconds(1));
+        layout.autoUpdating(8, (_, _) -> createEquipmentItem(replayPlayer.getEquipment(EquipmentSlot.BOOTS), "<c>Empty boots slot."), Duration.ofSeconds(1));
 
-        layout.slot(9, ItemStackCreator.getStack(
-            "§aReport Player",
-            Material.ANVIL,
-            1,
-            "§7Report this player for breaking the",
-            "§7rules. This replay will be saved",
-            "§7along with the report to be reviewed.",
-            "",
-            "§eClick to report!"
-        ), (_, c) -> c.player().notImplemented());
+        layout.slot(9, ItemStacks.item(Material.ANVIL, 1, """
+                <a>Report Player
+                <7>Report this player for breaking the
+                <7>rules. This replay will be saved
+                <7>along with the report to be reviewed.
+
+                <e>Click to report!"""), (_, c) -> c.player().notImplemented());
     }
 
-    private static String getDisplayName(ReplayPlayerEntity replayPlayer) {
+    private static Text getDisplayName(ReplayPlayerEntity replayPlayer) {
         try {
             return HypixelPlayer.getDisplayName(replayPlayer.getActualUuid());
         } catch (Exception ignored) {
-            return "§7" + replayPlayer.getPlayerName();
+            return Text.of("<7>{}", replayPlayer.getPlayerName());
         }
     }
 
     private static ItemStack.Builder createEffectsItem(ReplayPlayerEntity replayPlayer) {
         List<TimedPotion> effects = new ArrayList<>(replayPlayer.getActiveEffects());
         if (effects.isEmpty()) {
-            return ItemStackCreator.getStack(
-                "§aActive Status Effects",
-                Material.POTION,
-                1,
-                "§7No status effects."
-            );
+            return ItemStacks.item(Material.POTION, 1, "<a>Active Status Effects\n<7>No status effects.");
         }
 
-        List<String> lore = new ArrayList<>();
+        List<Text> lore = new ArrayList<>();
         for (TimedPotion timedPotion : effects) {
             String effectName = formatEffectName(timedPotion.potion().effect().toString());
             int amplifier = timedPotion.potion().amplifier() + 1;
-            lore.add("§7- §a" + effectName + " " + StringUtility.getAsRomanNumeral(amplifier));
+            lore.add(Text.of("<7>- <a>{} {:roman}", effectName, amplifier));
         }
 
-        return ItemStackCreator.getStack(
-            "§aActive Status Effects",
-            Material.POTION,
-            1,
-            lore
-        );
+        return ItemStacks.item(Material.POTION, 1, Text.of("<a>Active Status Effects"), lore);
     }
 
-    private static ItemStack.Builder createEquipmentItem(ItemStack itemStack, String emptyText) {
+    private static ItemStack.Builder createEquipmentItem(ItemStack itemStack, String emptyMarkup) {
         if (itemStack == null || itemStack.isAir()) {
-            return ItemStackCreator.getStack(
-                emptyText,
-                Material.RED_STAINED_GLASS_PANE,
-                1
-            );
+            return ItemStacks.item(Material.RED_STAINED_GLASS_PANE, 1, emptyMarkup);
         }
         return itemStack.builder();
     }

@@ -1,8 +1,5 @@
 package net.swofty.type.skywarsgame.luckyblock.items.usables;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Instance;
@@ -10,6 +7,8 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.tag.Tag;
+import net.swofty.commons.text.Text;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.skywarsgame.TypeSkywarsGameLoader;
 import net.swofty.type.skywarsgame.game.SkywarsGame;
 import net.swofty.type.skywarsgame.luckyblock.items.LuckyBlockItem;
@@ -37,23 +36,14 @@ public class Jackhammer implements LuckyBlockItem {
 
     @Override
     public ItemStack createItemStack() {
-        return ItemStack.builder(Material.DIAMOND_PICKAXE)
-                .customName(Component.text(getDisplayName(), NamedTextColor.AQUA)
-                        .decoration(TextDecoration.ITALIC, false)
-                        .decoration(TextDecoration.BOLD, true))
-                .lore(List.of(
-                        Component.text("Destroys a 3x3x3 cube", NamedTextColor.GRAY)
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.text("of blocks on use!", NamedTextColor.GRAY)
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.empty(),
-                        Component.text("Uses: ", NamedTextColor.GRAY)
-                                .append(Component.text(MAX_USES, NamedTextColor.GREEN))
-                                .decoration(TextDecoration.ITALIC, false),
-                        Component.empty(),
-                        Component.text("Right-click a block to use!", NamedTextColor.YELLOW)
-                                .decoration(TextDecoration.ITALIC, false)
-                ))
+        return ItemStacks.item(Material.DIAMOND_PICKAXE, """
+                <b><l>Jackhammer</l>
+                <7>Destroys a 3x3x3 cube
+                <7>of blocks on use!
+
+                <7>Uses: <a>{}
+
+                <e>Right-click a block to use!""", MAX_USES)
                 .set(LuckyBlockItemRegistry.LUCKY_BLOCK_ITEM_TAG, ID)
                 .set(USES_TAG, MAX_USES)
                 .build();
@@ -66,7 +56,7 @@ public class Jackhammer implements LuckyBlockItem {
 
         Point targetBlock = getTargetBlock(holder, instance);
         if (targetBlock == null) {
-            holder.sendMessage(Component.text("No block in range!", NamedTextColor.RED));
+            holder.sendMessage("<c>No block in range!");
             return false;
         }
 
@@ -88,7 +78,7 @@ public class Jackhammer implements LuckyBlockItem {
         }
 
         if (blocksDestroyed > 0) {
-            holder.sendMessage(Component.text("Destroyed " + blocksDestroyed + " blocks!", NamedTextColor.AQUA));
+            holder.sendMessage("<b>Destroyed {} blocks!", blocksDestroyed);
 
             ItemStack currentItem = holder.getItemInMainHand();
             Integer uses = currentItem.getTag(USES_TAG);
@@ -96,23 +86,17 @@ public class Jackhammer implements LuckyBlockItem {
 
             if (remainingUses <= 0) {
                 holder.setItemInMainHand(ItemStack.AIR);
-                holder.sendMessage(Component.text("Your Jackhammer broke!", NamedTextColor.RED));
+                holder.sendMessage("<c>Your Jackhammer broke!");
             } else {
-                ItemStack updatedItem = currentItem
-                        .with(builder -> builder.set(USES_TAG, remainingUses))
-                        .withLore(List.of(
-                                Component.text("Destroys a 3x3x3 cube", NamedTextColor.GRAY)
-                                        .decoration(TextDecoration.ITALIC, false),
-                                Component.text("of blocks on use!", NamedTextColor.GRAY)
-                                        .decoration(TextDecoration.ITALIC, false),
-                                Component.empty(),
-                                Component.text("Uses: ", NamedTextColor.GRAY)
-                                        .append(Component.text(remainingUses, NamedTextColor.GREEN))
-                                        .decoration(TextDecoration.ITALIC, false),
-                                Component.empty(),
-                                Component.text("Right-click a block to use!", NamedTextColor.YELLOW)
-                                        .decoration(TextDecoration.ITALIC, false)
-                        ));
+                List<Text> updatedLore = Text.of("""
+                        <7>Destroys a 3x3x3 cube
+                        <7>of blocks on use!
+
+                        <7>Uses: <a>{}
+
+                        <e>Right-click a block to use!""", remainingUses).lines();
+                ItemStack updatedItem = currentItem.with(builder ->
+                        ItemStacks.lore(builder.set(USES_TAG, remainingUses), updatedLore));
                 holder.setItemInMainHand(updatedItem);
             }
             return true;

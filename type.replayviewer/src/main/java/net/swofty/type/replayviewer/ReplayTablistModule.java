@@ -1,7 +1,5 @@
 package net.swofty.type.replayviewer;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.swofty.type.generic.tab.TablistModule;
 import net.swofty.type.generic.tab.TablistSkinRegistry;
 import net.swofty.type.generic.user.HypixelPlayer;
@@ -18,7 +16,7 @@ class ReplayTablistModule extends TablistModule {
             session -> {
                 // TODO: display all player names with only their color
             },
-                () -> entries.add(new TablistEntry(Component.text("Loading...", NamedTextColor.GRAY), TablistSkinRegistry.ORANGE))
+                () -> entries.add(new TablistEntry("<7>Loading...", TablistSkinRegistry.ORANGE))
         );
 
         return entries;

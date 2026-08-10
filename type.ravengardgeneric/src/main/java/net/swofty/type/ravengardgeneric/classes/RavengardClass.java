@@ -1,6 +1,7 @@
 package net.swofty.type.ravengardgeneric.classes;
 
 import lombok.Getter;
+import net.swofty.commons.text.Text;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,32 +34,32 @@ public enum RavengardClass {
     }
 
     /** Class description and primary weapon, verbatim from the captured Select Class menu. */
-    public String[] selectLore() {
+    public List<Text> selectLore() {
         return switch (this) {
-            case KNIGHT -> new String[]{
-                    "§7A tank class specializing in defense.",
-                    "§7Knights can protect themselves and",
-                    "§7teammates against incoming damage.",
-                    "",
-                    "§7Primary weapon: §fSword and Shield"};
-            case WARRIOR -> new String[]{
-                    "§7A heavy damage dealer.",
-                    "§7Uses two-handed weapons to deal",
-                    "§7devastating damage.",
-                    "",
-                    "§7Primary weapon: §fGreat Axe"};
-            case HUNTER -> new String[]{
-                    "§7Specializes in ranged combat.",
-                    "§7Hunters are known for using traps",
-                    "§7to keep enemies at bay.",
-                    "",
-                    "§7Primary weapon: §fBow"};
-            case ASSASSIN -> new String[]{
-                    "§7A stealth-focused class adept at",
-                    "§7sneaking.",
-                    "",
-                    "§7Primary weapon: §fDaggers"};
-            case SORCERER -> new String[0];
+            case KNIGHT -> List.of(
+                    Text.of("<7>A tank class specializing in defense."),
+                    Text.of("<7>Knights can protect themselves and"),
+                    Text.of("<7>teammates against incoming damage."),
+                    Text.empty(),
+                    Text.of("<7>Primary weapon: <f>Sword and Shield"));
+            case WARRIOR -> List.of(
+                    Text.of("<7>A heavy damage dealer."),
+                    Text.of("<7>Uses two-handed weapons to deal"),
+                    Text.of("<7>devastating damage."),
+                    Text.empty(),
+                    Text.of("<7>Primary weapon: <f>Great Axe"));
+            case HUNTER -> List.of(
+                    Text.of("<7>Specializes in ranged combat."),
+                    Text.of("<7>Hunters are known for using traps"),
+                    Text.of("<7>to keep enemies at bay."),
+                    Text.empty(),
+                    Text.of("<7>Primary weapon: <f>Bow"));
+            case ASSASSIN -> List.of(
+                    Text.of("<7>A stealth-focused class adept at"),
+                    Text.of("<7>sneaking."),
+                    Text.empty(),
+                    Text.of("<7>Primary weapon: <f>Daggers"));
+            case SORCERER -> List.of();
         };
     }
 
@@ -66,21 +67,21 @@ public enum RavengardClass {
      * Profile-statue tooltip, verbatim from the captured menu. Only the Assassin screen was
      * captured, so the rest return null and their lore lines are left out rather than invented.
      */
-    public String[] profileLore() {
+    public List<Text> profileLore() {
         if (this != ASSASSIN) {
             return null;
         }
-        return new String[]{
-                "§7A stealth-focused class adept at",
-                "§7sneaking.",
-                "",
-                "§7Primary weapon: §fDaggers",
-                "",
-                "§7Stats:",
-                "§7◦ Health §c160.0 ❤",
-                "§7◦ Protection §b0.0 ⛊",
-                "§7◦ Damage §420.0 ⚔"
-        };
+        return List.of(
+                Text.of("<7>A stealth-focused class adept at"),
+                Text.of("<7>sneaking."),
+                Text.empty(),
+                Text.of("<7>Primary weapon: <f>Daggers"),
+                Text.empty(),
+                Text.of("<7>Stats:"),
+                Text.of("<7>◦ Health <c>160.0 ❤"),
+                Text.of("<7>◦ Protection <b>0.0 ⛊"),
+                Text.of("<7>◦ Damage <4>20.0 ⚔")
+        );
     }
 
     /**

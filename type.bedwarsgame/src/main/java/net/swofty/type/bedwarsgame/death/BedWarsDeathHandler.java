@@ -1,17 +1,17 @@
 package net.swofty.type.bedwarsgame.death;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.item.Material;
 import net.swofty.commons.bedwars.map.BedWarsMapsConfig.TeamKey;
+import net.swofty.commons.text.Text;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsGame;
 import net.swofty.type.bedwarsgame.user.BedWarsPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BedWarsDeathHandler {
-    private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private BedWarsDeathHandler() {
     }
@@ -60,63 +60,47 @@ public final class BedWarsDeathHandler {
             || weapon == Material.TRIDENT;
     }
 
-    public static Component createDeathMessage(@NotNull BedWarsDeathResult result) {
+    public static Text createDeathMessage(@NotNull BedWarsDeathResult result) {
         BedWarsPlayer victim = result.victim();
-        Component victimDisplay = colorizeName(victim);
+        Text victimDisplay = colorizeName(victim);
 
-        Component message = switch (result.deathType()) {
-            case VOID -> MM.deserialize("<gray>").append(victimDisplay).append(MM.deserialize(" fell into the void."));
+        Text message = switch (result.deathType()) {
+            case VOID -> Text.of("<7>{} fell into the void.", victimDisplay);
             case VOID_ASSISTED -> {
-                Component assistDisplay = colorizeName(result.assistPlayer());
-                yield MM.deserialize("<gray>")
-                    .append(victimDisplay)
-                    .append(MM.deserialize(" was knocked into the void by "))
-                    .append(assistDisplay)
-                    .append(MM.deserialize("."));
+                Text assistDisplay = colorizeName(result.assistPlayer());
+                yield Text.of("<7>{} was knocked into the void by {}.", victimDisplay, assistDisplay);
             }
-            case GENERIC -> MM.deserialize("<gray>").append(victimDisplay).append(MM.deserialize(" died."));
+            case GENERIC -> Text.of("<7>{} died.", victimDisplay);
             case GENERIC_ASSISTED -> {
-                Component killerDisplay = colorizeName(result.getKillCreditPlayer());
-                yield MM.deserialize("<gray>")
-                    .append(victimDisplay)
-                    .append(MM.deserialize(" was killed by "))
-                    .append(killerDisplay)
-                    .append(MM.deserialize("."));
+                Text killerDisplay = colorizeName(result.getKillCreditPlayer());
+                yield Text.of("<7>{} was killed by {}.", victimDisplay, killerDisplay);
             }
             case BOW -> {
-                Component killerDisplay = colorizeName(result.getKillCreditPlayer());
-                yield MM.deserialize("<gray>")
-                    .append(victimDisplay)
-                    .append(MM.deserialize(" was shot by "))
-                    .append(killerDisplay)
-                    .append(MM.deserialize("."));
+                Text killerDisplay = colorizeName(result.getKillCreditPlayer());
+                yield Text.of("<7>{} was shot by {}.", victimDisplay, killerDisplay);
             }
             case ENTITY -> {
                 Entity entity = result.attackerEntity();
                 String entityName = entity != null ? entity.getEntityType().name() : "an entity";
                 BedWarsPlayer killer = result.killer();
-                Component killerDisplay = colorizeName(killer);
-                yield MM.deserialize("<gray>")
-                    .append(victimDisplay)
-                    .append(MM.deserialize(" was slain by "))
-                    .append(killerDisplay)
-                    .append(MM.deserialize("<gray>'s " + entityName + ".</gray>"));
+                Text killerDisplay = colorizeName(killer);
+                yield Text.of("<7>{} was slain by {}<7>'s {}.", victimDisplay, killerDisplay, entityName);
             }
         };
 
         if (result.isFinalKill()) {
-            message = message.append(MM.deserialize(" <aqua><bold>FINAL KILL!</bold></aqua>"));
+            message = message.append(" <b><l>FINAL KILL!");
         }
         return message;
     }
 
-    private static Component colorizeName(@Nullable BedWarsPlayer player) {
+    private static Text colorizeName(@Nullable BedWarsPlayer player) {
         if (player == null) {
-            return MM.deserialize("<gray>Unknown</gray>");
+            return Text.of("<7>Unknown");
         }
 
         TeamKey teamKey = player.getTeamKey();
-        String legacyColor = teamKey != null ? teamKey.chatColor() : "§7";
-        return Component.text(legacyColor + player.getUsername());
+        TextColor color = teamKey != null ? teamKey.chatColor() : NamedTextColor.GRAY;
+        return Text.of("<color:{}>{}", color, player.getUsername());
     }
 }

@@ -1,8 +1,7 @@
 package net.swofty.type.bedwarsconfigurator.autosetup;
 
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
@@ -12,6 +11,8 @@ import net.minestom.server.item.Material;
 import net.minestom.server.timer.TaskSchedule;
 import net.swofty.commons.bedwars.map.BedWarsMapsConfig.TeamKey;
 import net.swofty.commons.mc.HypixelPosition;
+import net.swofty.commons.text.Text;
+import net.swofty.type.generic.utility.EntityUtility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,66 +32,57 @@ public class DebugMarkerManager {
         for (Map.Entry<TeamKey, AutoSetupSession.TeamConfig> entry : session.getTeams().entrySet()) {
             TeamKey team = entry.getKey();
             AutoSetupSession.TeamConfig config = entry.getValue();
-            String teamColor = team.chatColor();
+            TextColor teamColor = team.chatColor();
 
-            // Bed markers
             if (config.getBedFeet() != null) {
-                markers.add(createMarker(instance, config.getBedFeet().asHypixelPosition(), teamColor + team.getName() + " Bed (Feet)", Material.RED_BED));
+                markers.add(createMarker(instance, config.getBedFeet().asHypixelPosition(), Text.of("<color:{}>{} Bed (Feet)", teamColor, team.getName()), Material.RED_BED));
             }
             if (config.getBedHead() != null) {
-                markers.add(createMarker(instance, config.getBedHead().asHypixelPosition(), teamColor + team.getName() + " Bed (Head)", Material.RED_BED));
+                markers.add(createMarker(instance, config.getBedHead().asHypixelPosition(), Text.of("<color:{}>{} Bed (Head)", teamColor, team.getName()), Material.RED_BED));
             }
 
-            // Spawn marker
             if (config.getSpawn() != null) {
                 HypixelPosition pos = new HypixelPosition(config.getSpawn().x(), config.getSpawn().y(), config.getSpawn().z());
-                markers.add(createMarker(instance, pos, teamColor + team.getName() + " Spawn", Material.PLAYER_HEAD));
+                markers.add(createMarker(instance, pos, Text.of("<color:{}>{} Spawn", teamColor, team.getName()), Material.PLAYER_HEAD));
             }
 
-            // Generator marker
             if (config.getGenerator() != null) {
-                markers.add(createMarker(instance, config.getGenerator(), teamColor + team.getName() + " Generator", Material.IRON_INGOT));
+                markers.add(createMarker(instance, config.getGenerator(), Text.of("<color:{}>{} Generator", teamColor, team.getName()), Material.IRON_INGOT));
             }
 
-            // Shop markers
             if (config.getItemShop() != null) {
                 HypixelPosition pos = new HypixelPosition(config.getItemShop().x(), config.getItemShop().y(), config.getItemShop().z());
-                markers.add(createMarker(instance, pos, teamColor + team.getName() + " Item Shop", Material.EMERALD));
+                markers.add(createMarker(instance, pos, Text.of("<color:{}>{} Item Shop", teamColor, team.getName()), Material.EMERALD));
             }
             if (config.getTeamShop() != null) {
                 HypixelPosition pos = new HypixelPosition(config.getTeamShop().x(), config.getTeamShop().y(), config.getTeamShop().z());
-                markers.add(createMarker(instance, pos, teamColor + team.getName() + " Team Shop", Material.NETHER_STAR));
+                markers.add(createMarker(instance, pos, Text.of("<color:{}>{} Team Shop", teamColor, team.getName()), Material.NETHER_STAR));
             }
         }
 
-        // Diamond generators
         int diamondIndex = 1;
         for (HypixelPosition pos : session.getDiamondGenerators()) {
-            markers.add(createMarker(instance, pos, "§bDiamond Gen #" + diamondIndex++, Material.DIAMOND_BLOCK));
+            markers.add(createMarker(instance, pos, Text.of("<b>Diamond Gen #{}", diamondIndex++), Material.DIAMOND_BLOCK));
         }
 
-        // Emerald generators
         int emeraldIndex = 1;
         for (HypixelPosition pos : session.getEmeraldGenerators()) {
-            markers.add(createMarker(instance, pos, "§aEmerald Gen #" + emeraldIndex++, Material.EMERALD_BLOCK));
+            markers.add(createMarker(instance, pos, Text.of("<a>Emerald Gen #{}", emeraldIndex++), Material.EMERALD_BLOCK));
         }
 
-        // Waiting location
         if (session.getWaitingLocation() != null) {
             HypixelPosition pos = new HypixelPosition(session.getWaitingLocation().x(), session.getWaitingLocation().y(), session.getWaitingLocation().z());
-            markers.add(createMarker(instance, pos, "§eWaiting Spawn", Material.CLOCK));
+            markers.add(createMarker(instance, pos, Text.of("<e>Waiting Spawn"), Material.CLOCK));
         }
 
-        // Spectator location
         if (session.getSpectatorLocation() != null) {
             HypixelPosition pos = new HypixelPosition(session.getSpectatorLocation().x(), session.getSpectatorLocation().y(), session.getSpectatorLocation().z());
-            markers.add(createMarker(instance, pos, "§7Spectator Spawn", Material.ENDER_EYE));
+            markers.add(createMarker(instance, pos, Text.of("<7>Spectator Spawn"), Material.ENDER_EYE));
         }
 
-        // Bounds markers (corners)
         if (session.hasBounds()) {
-            markers.add(createMarker(instance, new HypixelPosition(session.getMinX(), session.getMinY(), session.getMinZ()), "§8Bounds Min", Material.BARRIER));
-            markers.add(createMarker(instance, new HypixelPosition(session.getMaxX(), session.getMaxY(), session.getMaxZ()), "§8Bounds Max", Material.BARRIER));
+            markers.add(createMarker(instance, new HypixelPosition(session.getMinX(), session.getMinY(), session.getMinZ()), Text.of("<8>Bounds Min"), Material.BARRIER));
+            markers.add(createMarker(instance, new HypixelPosition(session.getMaxX(), session.getMaxY(), session.getMaxZ()), Text.of("<8>Bounds Max"), Material.BARRIER));
         }
 
         playerMarkers.put(playerUuid, markers);
@@ -105,7 +97,7 @@ public class DebugMarkerManager {
         }
     }
 
-    private static Entity createMarker(Instance instance, HypixelPosition pos, String label, Material headItem) {
+    private static Entity createMarker(Instance instance, HypixelPosition pos, Text label, Material headItem) {
         Entity armorStand = new Entity(EntityType.ARMOR_STAND);
 
         ArmorStandMeta meta = (ArmorStandMeta) armorStand.getEntityMeta();
@@ -115,11 +107,10 @@ public class DebugMarkerManager {
         meta.setSmall(true);
         meta.setCustomNameVisible(true);
 
-        armorStand.set(DataComponents.CUSTOM_NAME, Component.text(label));
+        EntityUtility.nameEntity(armorStand, label);
 
         armorStand.setInstance(instance, new Pos(pos.x(), pos.y() + 1.5, pos.z()));
 
-        // floating animation
         MinecraftServer.getSchedulerManager().scheduleTask(() -> {
             if (armorStand.isRemoved()) return TaskSchedule.stop();
 
@@ -135,7 +126,7 @@ public class DebugMarkerManager {
     }
 
     public static Entity createSingleMarker(Instance instance, double x, double y, double z, String label) {
-        return createMarker(instance, new HypixelPosition(x, y, z), label, Material.ARMOR_STAND);
+        return createMarker(instance, new HypixelPosition(x, y, z), Text.literal(label), Material.ARMOR_STAND);
     }
 
     public static void refreshMarkers(UUID playerUuid, AutoSetupSession session, Instance instance) {

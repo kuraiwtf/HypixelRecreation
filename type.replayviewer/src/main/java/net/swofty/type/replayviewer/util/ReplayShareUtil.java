@@ -2,9 +2,6 @@ package net.swofty.type.replayviewer.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Pos;
 import net.swofty.type.generic.user.HypixelPlayer;
 import net.swofty.type.replayviewer.playback.ReplaySession;
@@ -37,12 +34,9 @@ public final class ReplayShareUtil {
     public static void sendShareCommandMessage(HypixelPlayer player, ReplaySession session, int tick, Pos position) {
         String fullCommand = buildShareCommand(session, position, tick);
 
-        Component message = Component.text()
-            .append(Component.text("§6§lClick here to put share command in chat!"))
-            .clickEvent(ClickEvent.suggestCommand(fullCommand))
-            .hoverEvent(Component.text("Click to copy command to chat", NamedTextColor.YELLOW))
-            .build();
-
-        player.sendMessage(message);
+        player.sendMessage(
+            "<hover:'<e>Click to copy command to chat'><click:suggest:'{}'><6><l>Click here to put share command in chat!</click></hover>",
+            fullCommand
+        );
     }
 }

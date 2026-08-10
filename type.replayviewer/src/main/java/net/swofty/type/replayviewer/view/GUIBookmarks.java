@@ -4,10 +4,11 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.click.Click;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.swofty.commons.text.Text;
 import net.swofty.type.game.replay.recordable.Recordable;
 import net.swofty.type.game.replay.recordable.bedwars.RecordableBedDestruction;
 import net.swofty.type.game.replay.recordable.bedwars.RecordableKill;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.gui.v2.Components;
 import net.swofty.type.generic.gui.v2.StatefulView;
 import net.swofty.type.generic.gui.v2.ViewConfiguration;
@@ -33,7 +34,7 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
     public record State(int page) {
     }
 
-    private record BookmarkEntry(int tick, String title, String playerDisplayName) {
+    private record BookmarkEntry(int tick, Text title, Text playerDisplayName) {
     }
 
     @Override
@@ -50,13 +51,10 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
     public void layout(ViewLayout<State> layout, State state, ViewContext ctx) {
         var sessionOpt = TypeReplayViewerLoader.getSession(ctx.player());
         if (sessionOpt.isEmpty()) {
-            layout.slot(22, ItemStackCreator.getStack(
-                "§cNo Replay Session",
-                Material.BARRIER,
-                1,
-                "§7You are not currently watching",
-                "§7a replay."
-            ));
+            layout.slot(22, ItemStacks.item(Material.BARRIER, 1, """
+                    <c>No Replay Session
+                    <7>You are not currently watching
+                    <7>a replay."""));
             Components.back(layout, 49, ctx);
             return;
         }
@@ -79,17 +77,15 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
             }
 
             BookmarkEntry entry = bookmarks.get(index);
-            layout.slot(slot, ItemStackCreator.getStack(
-                entry.title(),
-                Material.PAPER,
-                1,
-                "§7Time: §a" + formatBookmarkTime(entry.tick()),
-                "",
-                "§aPlayer: " + entry.playerDisplayName(),
-                "",
-                "§eLeft Click to go to this time!",
-                "§eRight Click to share!"
-            ), (click, c) -> {
+            List<Text> lore = List.of(
+                Text.of("<7>Time: <a>{}", formatBookmarkTime(entry.tick())),
+                Text.empty(),
+                Text.of("<a>Player: ").append(entry.playerDisplayName()),
+                Text.empty(),
+                Text.of("<e>Left Click to go to this time!"),
+                Text.of("<e>Right Click to share!")
+            );
+            layout.slot(slot, ItemStacks.item(Material.PAPER, 1, entry.title(), lore), (click, c) -> {
                 if (click.click() instanceof Click.Right) {
                     ReplayShareUtil.sendShareCommandMessage(c.player(), replaySession, entry.tick());
                     return;
@@ -100,31 +96,18 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
         }
 
         if (currentPage > 0) {
-            layout.slot(45, ItemStackCreator.getStack(
-                "§aPrevious Page",
-                Material.ARROW,
-                1,
-                "§7Page §e" + currentPage
-            ), (_, c) -> c.session(State.class).setState(new State(currentPage - 1)));
+            layout.slot(45, ItemStacks.item(Material.ARROW, 1, "<a>Previous Page\n<7>Page <e>{}", currentPage),
+                (_, c) -> c.session(State.class).setState(new State(currentPage - 1)));
         }
 
         if (currentPage < totalPages - 1) {
-            layout.slot(53, ItemStackCreator.getStack(
-                "§aNext Page",
-                Material.ARROW,
-                1,
-                "§7Page §e" + (currentPage + 2)
-            ), (_, c) -> c.session(State.class).setState(new State(currentPage + 1)));
+            layout.slot(53, ItemStacks.item(Material.ARROW, 1, "<a>Next Page\n<7>Page <e>{}", currentPage + 2),
+                (_, c) -> c.session(State.class).setState(new State(currentPage + 1)));
         }
 
         Components.back(layout, 49, ctx);
         if (bookmarks.isEmpty()) {
-            layout.slot(22, ItemStackCreator.getStack(
-                "§cNo Bookmarks Found",
-                Material.BARRIER,
-                1,
-                "§7There are no bookmarks in this match."
-            ));
+            layout.slot(22, ItemStacks.item(Material.BARRIER, 1, "<c>No Bookmarks Found\n<7>There are no bookmarks in this match."));
         }
     }
 
@@ -137,12 +120,12 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
                 if (recordable instanceof RecordableBedDestruction bedDestruction) {
                     String fallback = bedDestruction.getDestroyerEntityId() >= 0
                         ? session.getEntityDisplayName(bedDestruction.getDestroyerEntityId())
-                        : "§7Unknown";
-                    String playerName = resolveDisplayName(bedDestruction.getDestroyerUuid(), fallback);
+                        : null;
+                    Text playerName = resolveDisplayName(bedDestruction.getDestroyerUuid(), fallback);
 
                     entries.add(new BookmarkEntry(
                         tick,
-                        "§a" + getTeamName(bedDestruction.getTeamId()) + " Bed Destroyed",
+                        Text.of("<a>{} Bed Destroyed", getTeamName(bedDestruction.getTeamId())),
                         playerName
                     ));
                     continue;
@@ -150,11 +133,11 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
 
                 if (recordable instanceof RecordableKill kill && kill.getFinalKill() != 0) {
                     String fallback = session.getEntityDisplayName(kill.getVictimEntityId());
-                    String playerName = resolveDisplayName(kill.getVictimUuid(), fallback);
+                    Text playerName = resolveDisplayName(kill.getVictimUuid(), fallback);
 
                     entries.add(new BookmarkEntry(
                         tick,
-                        "§aFinal Death",
+                        Text.of("<a>Final Death"),
                         playerName
                     ));
                 }
@@ -171,15 +154,19 @@ public class GUIBookmarks implements StatefulView<GUIBookmarks.State> {
         return String.format("%02d:%02d seconds", minutes, seconds);
     }
 
-    private static String resolveDisplayName(UUID uuid, String fallback) {
+    private static Text resolveDisplayName(UUID uuid, String fallback) {
         if (uuid == null) {
-            return fallback != null ? fallback : "§7Unknown";
+            return fallback != null
+                ? (fallback.indexOf('\u00a7') >= 0 ? Text.legacy(fallback) : Text.parse(fallback))
+                : Text.of("<7>Unknown");
         }
 
         try {
             return HypixelPlayer.getDisplayName(uuid);
         } catch (Exception ignored) {
-            return fallback != null ? fallback : "§7Unknown";
+            return fallback != null
+                ? (fallback.indexOf('\u00a7') >= 0 ? Text.legacy(fallback) : Text.parse(fallback))
+                : Text.of("<7>Unknown");
         }
     }
 

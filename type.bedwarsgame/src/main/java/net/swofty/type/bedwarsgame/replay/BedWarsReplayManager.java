@@ -24,6 +24,7 @@ import net.swofty.commons.bedwars.map.BedWarsMapsConfig.TeamKey;
 import net.swofty.commons.protocol.objects.replay.ReplayMapUploadProtocolObject;
 import net.swofty.commons.protocol.objects.replay.ReplayStartProtocolObject;
 import net.swofty.commons.scoreboard.ScoreboardData;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.type.bedwarsgame.death.BedWarsDeathType;
 import net.swofty.type.bedwarsgame.game.v2.BedWarsGame;
@@ -125,7 +126,7 @@ public class BedWarsReplayManager {
 
             teamInfo.put(teamId, new ReplayStartProtocolObject.TeamInfo(
                 team.getName(),
-                team.getColorCode(),
+                Text.colorTag(team.getColor()),
                 team.getTeamKey().rgb()
             ));
         }
@@ -188,7 +189,9 @@ public class BedWarsReplayManager {
         }
 
         BedWarsTeam team = game.getTeam(player.getTeamKey().name()).orElse(null);
-        String prefix = team != null ? team.getColorCode() + "§l" + team.getTeamKey().name().charAt(0) + team.getColorCode() + " " : "";
+        String prefix = team != null
+                ? Text.of("<color:{}><l>{}</l> ", team.getColor(), team.getTeamKey().name().charAt(0)).serialize()
+                : "";
         int nameColor = team != null ? team.getTeamKey().rgb() : -1;
 
         recorder.record(new RecordablePlayerDisplayName(

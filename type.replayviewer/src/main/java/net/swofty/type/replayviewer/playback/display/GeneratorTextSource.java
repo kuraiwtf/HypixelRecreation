@@ -1,5 +1,9 @@
 package net.swofty.type.replayviewer.playback.display;
 
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.swofty.commons.text.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -74,22 +78,21 @@ public class GeneratorTextSource implements DynamicTextSource {
     private List<String> formatText(int tier) {
         List<String> result = new ArrayList<>();
 
-        // Format based on generator type
-        String color = generatorType.equalsIgnoreCase("diamond") ? "§b" : "§a";
+        TextColor color = generatorType.equalsIgnoreCase("diamond") ? NamedTextColor.AQUA : NamedTextColor.GREEN;
         String name = generatorType.equalsIgnoreCase("diamond") ? "Diamond" : "Emerald";
 
-        result.add(color + "§l" + name);
-        result.add("§7Tier " + tier);
+        result.add(Text.of("<color:{}><l>{}", color, name).serialize());
+        result.add(Text.of("<7>Tier {}", tier).serialize());
 
         if (tier < 3) {
             String spawnRate = switch (tier) {
-                case 1 -> generatorType.equalsIgnoreCase("diamond") ? "§730s" : "§760s";
-                case 2 -> generatorType.equalsIgnoreCase("diamond") ? "§723s" : "§745s";
-                default -> "§7???";
+                case 1 -> generatorType.equalsIgnoreCase("diamond") ? "30s" : "60s";
+                case 2 -> generatorType.equalsIgnoreCase("diamond") ? "23s" : "45s";
+                default -> "???";
             };
-            result.add("§7Spawns every " + spawnRate);
+            result.add(Text.of("<7>Spawns every {}", spawnRate).serialize());
         } else {
-            result.add("§6Max Tier!");
+            result.add("<6>Max Tier!");
         }
 
         return result;

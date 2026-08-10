@@ -52,8 +52,8 @@ public class FairySoul {
         if (!fairySouls.getAllFairySouls().contains(id)) {
             fairySouls.addCollectedFairySouls(id);
 
-            player.sendMessage("§d§lSOUL! §fYou found a §dFairy Soul§f!");
-            player.sendMessage("§7Go to Tia the Fairy in the §eHub§7 to exchange it for rewards!");
+            player.sendMessage("<d><l>SOUL! </l><f>You found a <d>Fairy Soul<f>!");
+            player.sendMessage("<7>Go to Tia the Fairy in the <e>Hub<7> to exchange it for rewards!");
             player.getSkyblockDataHandler()
                     .get(SkyBlockDataHandler.Data.FAIRY_SOULS, DatapointFairySouls.class)
                     .setValue(fairySouls);
@@ -61,7 +61,7 @@ public class FairySoul {
             return;
         }
 
-        player.sendMessage("§dYou have already found that Fairy Soul!");
+        player.sendMessage("<d>You have already found that Fairy Soul!");
     }
 
     public static List<FairySoul> getFairySouls() {

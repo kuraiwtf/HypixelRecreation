@@ -1,10 +1,9 @@
 package net.swofty.type.replayviewer.playback.scoreboard;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.Player;
-import net.minestom.server.scoreboard.Sidebar;
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.HypixelConst;
+import net.swofty.type.generic.scoreboard.HypixelScoreboard;
 import net.swofty.type.replayviewer.playback.ReplaySession;
 
 import java.text.SimpleDateFormat;
@@ -14,8 +13,9 @@ import java.util.List;
 
 public class GenericReplayScoreboard implements ReplayScoreboard {
 
+    private final HypixelScoreboard scoreboard = new HypixelScoreboard();
     private final ReplaySession session;
-    private Sidebar sidebar;
+    private Player viewer;
 
     public GenericReplayScoreboard(ReplaySession session) {
         this.session = session;
@@ -23,58 +23,47 @@ public class GenericReplayScoreboard implements ReplayScoreboard {
 
     @Override
     public void create(Player viewer) {
-        sidebar = new Sidebar(Component.text(getTitle(), NamedTextColor.YELLOW));
-        sidebar.addViewer(viewer);
+        this.viewer = viewer;
+        scoreboard.createScoreboard(viewer, getTitle());
         update(session);
     }
 
     @Override
     public void update(ReplaySession session) {
-        if (sidebar == null) return;
+        if (viewer == null) return;
 
-        List<String> lines = getLines(session);
-        for (int i = 0; i < 15; i++) {
-            sidebar.removeLine("line_" + i);
-        }
-
-        for (int i = 0; i < lines.size() && i < 15; i++) {
-            sidebar.createLine(new Sidebar.ScoreboardLine(
-                "line_" + i,
-                Component.text(lines.get(i)),
-                lines.size() - i,
-                Sidebar.NumberFormat.blank()
-            ));
-        }
+        scoreboard.updateLines(viewer, getLines(session));
     }
 
     @Override
     public void remove(Player viewer) {
-        if (sidebar != null) {
-            sidebar.removeViewer(viewer);
-        }
+        scoreboard.removeScoreboard(viewer);
+        this.viewer = null;
     }
 
     @Override
-    public String getTitle() {
+    public Text getTitle() {
         String gameType = session.getMetadata().getGameTypeName();
         if (gameType == null || gameType.isEmpty()) {
-            return "§e§lREPLAY";
+            return Text.of("<e><l>REPLAY");
         }
-        return "§e§l" + gameType.toUpperCase();
+        return Text.of("<e><l>{}", gameType.toUpperCase());
     }
 
     @Override
-    public List<String> getLines(ReplaySession session) {
-        List<String> lines = new ArrayList<>();
-        lines.add("§7" + new SimpleDateFormat("MM/dd/yyyy").format(new Date()) + "  §8" + HypixelConst.getServerName());
-        lines.add("§7Replay from " + session.getMetadata().getServerId());
-        lines.add("§7 ");
+    public List<Text> getLines(ReplaySession session) {
+        List<Text> lines = new ArrayList<>();
+        lines.add(Text.of("<7>{}  <8>{}",
+            new SimpleDateFormat("MM/dd/yyyy").format(new Date()), HypixelConst.getServerName()));
+        lines.add(Text.of("<7>Replay from {}", session.getMetadata().getServerId()));
+        lines.add(Text.of("<7> "));
 
-        lines.add("§fDate: §a" + new SimpleDateFormat("MM/dd/yyyy").format(new Date(session.getMetadata().getStartTime())));
-        lines.add("§fTime: §a" + new SimpleDateFormat("HH:mm").format(new Date(session.getMetadata().getStartTime())) + " (EST)");
-        lines.add("§7 ");
+        lines.add(Text.of("<f>Date: <a>{}",
+            new SimpleDateFormat("MM/dd/yyyy").format(new Date(session.getMetadata().getStartTime()))));
+        lines.add(Text.of("<f>Time: <a>{} (EST)",
+            new SimpleDateFormat("HH:mm").format(new Date(session.getMetadata().getStartTime()))));
+        lines.add(Text.of("<7> "));
 
-        // capitalize gameType
         String gameType = session.getMetadata().getGameTypeName();
         if (gameType != null && !gameType.isEmpty()) {
             gameType = gameType.substring(0, 1).toUpperCase() + gameType.substring(1).toLowerCase();
@@ -82,15 +71,15 @@ public class GenericReplayScoreboard implements ReplayScoreboard {
             gameType = "Unknown";
         }
 
-        lines.add("§fGame: §aBedWars");
-        lines.add("§fMode: §a" + gameType);
-        lines.add("§7 ");
+        lines.add(Text.of("<f>Game: <a>BedWars"));
+        lines.add(Text.of("<f>Mode: <a>{}", gameType));
+        lines.add(Text.of("<7> "));
 
         String mapName = session.getMetadata().getMapName();
         if (mapName != null && !mapName.isEmpty()) {
-            lines.add("§fMap: §a" + mapName);
+            lines.add(Text.of("<f>Map: <a>{}", mapName));
         }
-        lines.add("§ewww.hypixel.net");
+        lines.add(Text.of("<e>www.hypixel.net"));
 
         return lines;
     }

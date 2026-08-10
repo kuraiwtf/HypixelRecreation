@@ -1,10 +1,11 @@
 package net.swofty.type.replayviewer.playback;
 
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
@@ -22,6 +23,7 @@ import net.swofty.type.game.replay.recordable.*;
 import net.swofty.type.game.replay.recordable.bedwars.RecordableBedDestruction;
 import net.swofty.type.game.replay.recordable.bedwars.RecordableKill;
 import net.swofty.type.game.replay.recordable.bedwars.RecordableTeamElimination;
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.user.HypixelPlayer;
 import net.swofty.type.replayviewer.entity.ReplayDroppedItemEntity;
 import net.swofty.type.replayviewer.entity.ReplayEntity;
@@ -334,16 +336,16 @@ public class RecordablePlayer {
 
     private static void playPlayerChat(RecordablePlayerChat rec, ReplaySession session) {
         String playerName = session.getEntityDisplayName(rec.getEntityId());
-        String message = rec.isShout()
-            ? "§6[SHOUT] §r" + playerName + "§r: " + rec.getMessage()
-            : "§7" + playerName + "§7: §f" + rec.getMessage();
+        Text message = rec.isShout()
+            ? Text.of("<6>[SHOUT] <r>{}<r>: {}", playerName, rec.getMessage())
+            : Text.of("<7>{}<7>: <f>{}", playerName, rec.getMessage());
 
         for (var viewer : session.getViewers()) {
             if (viewer instanceof HypixelPlayer hypixelPlayer
                 && !ReplaySettingsUtil.getSettings(hypixelPlayer).isChatMessages()) {
                 continue;
             }
-            viewer.sendMessage(Component.text(message));
+            viewer.sendMessage(message);
         }
     }
 
@@ -359,22 +361,25 @@ public class RecordablePlayer {
 
     private static void playBedDestruction(RecordableBedDestruction rec, ReplaySession session) {
         String teamName = getTeamName(rec.getTeamId());
-        String teamColor = getTeamColor(rec.getTeamId());
+        TextColor teamColor = getTeamColor(rec.getTeamId());
 
         UUID destroyerUuid = getEntityUuid(session, rec.getDestroyerEntityId());
-        String destroyerColor = getTeamColorForPlayer(session, destroyerUuid);
-        String colouredPlayerName = destroyerColor + session.getEntityDisplayName(rec.getDestroyerEntityId());
+        TextColor destroyerColor = getTeamColorForPlayer(session, destroyerUuid);
+        String destroyerName = session.getEntityDisplayName(rec.getDestroyerEntityId());
+
+        Text message = Text.of(
+            "<f><l>BED DESTRUCTION > </l><color:{}>{} Bed <7>has been destroyed by <color:{}>{}<7>!",
+            teamColor, teamName, destroyerColor, destroyerName
+        );
 
         for (var viewer : session.getViewers()) {
             if (viewer instanceof HypixelPlayer hypixelPlayer
                 && !ReplaySettingsUtil.getSettings(hypixelPlayer).isChatMessages()) {
                 continue;
             }
-            viewer.sendMessage(Component.text(""));
-            viewer.sendMessage(Component.text(
-                "§f§lBED DESTRUCTION > " + teamColor + teamName + " Bed §7has been destroyed by " + colouredPlayerName + "§7!"
-            ));
-            viewer.sendMessage(Component.text(""));
+            viewer.sendMessage("");
+            viewer.sendMessage(message);
+            viewer.sendMessage("");
         }
     }
 
@@ -383,57 +388,60 @@ public class RecordablePlayer {
         if (victimBaseName == null) {
             victimBaseName = String.valueOf(rec.getVictimEntityId());
         }
-        String victim = getTeamColor(rec.getVictimTeamId()) + victimBaseName;
+        TextColor victimColor = getTeamColor(rec.getVictimTeamId());
 
-        String killer = null;
+        String killerBaseName = null;
+        TextColor killerColor = null;
         if (rec.getKillerUuid() != null) {
-            String killerBaseName = session.getMetadata().getPlayers().get(rec.getKillerUuid());
+            killerBaseName = session.getMetadata().getPlayers().get(rec.getKillerUuid());
             if (killerBaseName != null) {
-                killer = getTeamColorForPlayer(session, rec.getKillerUuid()) + killerBaseName;
+                killerColor = getTeamColorForPlayer(session, rec.getKillerUuid());
             }
         }
 
-        String deathMessage = switch (rec.getDeathCause()) {
-            case 0 -> "§7" + victim + " died.";
-            case 1 -> killer != null
-                ? "§7" + victim + " was killed by " + killer + "§7."
-                : "§7" + victim + " died.";
-            case 2 -> "§7" + victim + " fell into the void.";
-            case 3 -> killer != null
-                ? "§7" + victim + " was knocked into the void by " + killer + "§7."
-                : "§7" + victim + " fell into the void.";
-            case 4 -> killer != null
-                ? "§7" + victim + " was shot by " + killer + "§7."
-                : "§7" + victim + " died.";
-            case 5 -> killer != null
-                ? "§7" + victim + " was slain by " + killer + "§7's entity."
-                : "§7" + victim + " died.";
-            default -> "§7" + victim + " died.";
+        Text deathMessage = switch (rec.getDeathCause()) {
+            case 0 -> Text.of("<7><color:{}>{}<7> died.", victimColor, victimBaseName);
+            case 1 -> killerBaseName != null
+                ? Text.of("<7><color:{}>{}<7> was killed by <color:{}>{}<7>.", victimColor, victimBaseName, killerColor, killerBaseName)
+                : Text.of("<7><color:{}>{}<7> died.", victimColor, victimBaseName);
+            case 2 -> Text.of("<7><color:{}>{}<7> fell into the void.", victimColor, victimBaseName);
+            case 3 -> killerBaseName != null
+                ? Text.of("<7><color:{}>{}<7> was knocked into the void by <color:{}>{}<7>.", victimColor, victimBaseName, killerColor, killerBaseName)
+                : Text.of("<7><color:{}>{}<7> fell into the void.", victimColor, victimBaseName);
+            case 4 -> killerBaseName != null
+                ? Text.of("<7><color:{}>{}<7> was shot by <color:{}>{}<7>.", victimColor, victimBaseName, killerColor, killerBaseName)
+                : Text.of("<7><color:{}>{}<7> died.", victimColor, victimBaseName);
+            case 5 -> killerBaseName != null
+                ? Text.of("<7><color:{}>{}<7> was slain by <color:{}>{}<7>'s entity.", victimColor, victimBaseName, killerColor, killerBaseName)
+                : Text.of("<7><color:{}>{}<7> died.", victimColor, victimBaseName);
+            default -> Text.of("<7><color:{}>{}<7> died.", victimColor, victimBaseName);
         };
 
-        String message = rec.getFinalKill() != 0 ? deathMessage + " §b§lFINAL KILL!" : deathMessage;
+        Text message = rec.getFinalKill() != 0 ? deathMessage.append(" <b><l>FINAL KILL!") : deathMessage;
         for (var viewer : session.getViewers()) {
             if (viewer instanceof HypixelPlayer hypixelPlayer
                 && !ReplaySettingsUtil.getSettings(hypixelPlayer).isChatMessages()) {
                 continue;
             }
-            viewer.sendMessage(Component.text(message));
+            viewer.sendMessage(message);
         }
     }
 
     private static void playTeamElimination(RecordableTeamElimination rec, ReplaySession session) {
         String teamName = getTeamName(rec.getTeamId());
-        String teamColor = getTeamColor(rec.getTeamId());
+        TextColor teamColor = getTeamColor(rec.getTeamId());
+        Text message = Text.of(
+            "<f><l>TEAM ELIMINATED > </l><color:{}>{} <7>has been eliminated!",
+            teamColor, teamName
+        );
         for (var viewer : session.getViewers()) {
             if (viewer instanceof HypixelPlayer hypixelPlayer
                 && !ReplaySettingsUtil.getSettings(hypixelPlayer).isChatMessages()) {
                 continue;
             }
-            viewer.sendMessage(Component.text(""));
-            viewer.sendMessage(Component.text(
-                "§f§lTEAM ELIMINATED > §c" + teamColor + teamName + " §7has been eliminated!"
-            ));
-            viewer.sendMessage(Component.text(""));
+            viewer.sendMessage("");
+            viewer.sendMessage(message);
+            viewer.sendMessage("");
         }
     }
 
@@ -521,17 +529,16 @@ public class RecordablePlayer {
         };
     }
 
-    private static String getTeamColor(byte teamId) {
+    private static TextColor getTeamColor(byte teamId) {
         return switch (teamId) {
-            case 0 -> "§c";
-            case 1 -> "§9";
-            case 2 -> "§a";
-            case 3 -> "§e";
-            case 4 -> "§b";
-            case 5 -> "§f";
-            case 6 -> "§d";
-            case 7 -> "§7";
-            default -> "§7";
+            case 0 -> NamedTextColor.RED;
+            case 1 -> NamedTextColor.BLUE;
+            case 2 -> NamedTextColor.GREEN;
+            case 3 -> NamedTextColor.YELLOW;
+            case 4 -> NamedTextColor.AQUA;
+            case 5 -> NamedTextColor.WHITE;
+            case 6 -> NamedTextColor.LIGHT_PURPLE;
+            default -> NamedTextColor.GRAY;
         };
     }
 
@@ -546,9 +553,9 @@ public class RecordablePlayer {
         return null;
     }
 
-    private static String getTeamColorForPlayer(ReplaySession session, UUID playerUuid) {
+    private static TextColor getTeamColorForPlayer(ReplaySession session, UUID playerUuid) {
         if (playerUuid == null) {
-            return "§7";
+            return NamedTextColor.GRAY;
         }
 
         for (Map.Entry<String, List<UUID>> entry : session.getMetadata().getTeams().entrySet()) {
@@ -590,7 +597,7 @@ public class RecordablePlayer {
             }
         }
 
-        return "§7";
+        return NamedTextColor.GRAY;
     }
 
     private static void trackEntityState(Recordable recordable, ReplaySession session) {

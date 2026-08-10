@@ -28,12 +28,12 @@ public class GotoCommand extends HypixelCommand {
                         int tick = parseTime(time);
                         if (tick >= 0) {
                             session.seekTo(tick);
-                            player.sendMessage("§aGoing to " + tick / 20 * 50 + " seconds into the replay!");
+                            player.sendMessage("<a>Going to {} seconds into the replay!", tick / 20 * 50);
                         } else {
-                            player.sendMessage("§cInvalid time format. Use mm:ss or tick number.");
+                            player.sendMessage("<c>Invalid time format. Use mm:ss or tick number.");
                         }
                     },
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, timeArg);
 
@@ -41,7 +41,7 @@ public class GotoCommand extends HypixelCommand {
             HypixelPlayer player = (HypixelPlayer) sender;
             TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
                     session -> session.seekTo(0),
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, ArgumentType.Literal("start"));
 
@@ -49,7 +49,7 @@ public class GotoCommand extends HypixelCommand {
             HypixelPlayer player = (HypixelPlayer) sender;
             TypeReplayViewerLoader.getSession(player).ifPresentOrElse(
                     session -> session.seekTo(session.getTotalTicks() - 1),
-                    () -> player.sendMessage("§cNo active replay session.")
+                    () -> player.sendMessage("<c>No active replay session.")
             );
         }, ArgumentType.Literal("end"));
     }

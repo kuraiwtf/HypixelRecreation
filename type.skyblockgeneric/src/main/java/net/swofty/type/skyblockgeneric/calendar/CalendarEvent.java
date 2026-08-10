@@ -7,6 +7,7 @@ import net.swofty.commons.ServiceType;
 import net.swofty.commons.StringUtility;
 import net.swofty.commons.protocol.objects.darkauction.TriggerDarkAuctionProtocol;
 import net.swofty.commons.redis.RedisClient;
+import net.swofty.commons.text.Text;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.type.skyblockgeneric.elections.ElectionManager;
 import org.tinylog.Logger;
@@ -24,8 +25,8 @@ import java.util.function.Function;
 public record CalendarEvent(
     String id,
     ItemStack representation,
-    Function<Integer, String> displayName,
-    List<String> description,
+    Function<Integer, Text> displayName,
+    List<Text> description,
     List<Long> times,
     Duration duration,
     boolean tracksYear,
@@ -40,10 +41,10 @@ public record CalendarEvent(
     public static CalendarEvent NEW_YEAR = new CalendarEvent(
         "new_year",
         ItemStack.of(Material.CAKE).with(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true),
-        year -> "§d" + StringUtility.ntify(year) + " New Year Celebration",
+        year -> Text.of("<d>{} New Year Celebration", StringUtility.ntify(year)),
         List.of(
-            "§7To celebrate the SkyBlock New Year,",
-            "§7the Baker is giving out free Cake!"
+            Text.of("<7>To celebrate the SkyBlock New Year,"),
+            Text.of("<7>the Baker is giving out free Cake!")
         ),
         List.of(10L),
         Duration.ofHours(1),
@@ -57,11 +58,11 @@ public record CalendarEvent(
     public static CalendarEvent DARK_AUCTION = new CalendarEvent(
         "dark_auction",
         ItemStack.of(Material.NETHER_STAR).with(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true),
-        year -> "§5Dark Auction",
+        year -> Text.of("<5>Dark Auction"),
         List.of(
-            "§7The Dark Auction is a secret",
-            "§7underground auction where",
-            "§7special items are sold."
+            Text.of("<7>The Dark Auction is a secret"),
+            Text.of("<7>underground auction where"),
+            Text.of("<7>special items are sold.")
         ),
         calculateDarkAuctionTimes(),
         Duration.ofMinutes(5),
@@ -111,11 +112,11 @@ public record CalendarEvent(
     public static CalendarEvent ELECTION_OPEN = new CalendarEvent(
         "election_open",
         ItemStack.of(Material.JUKEBOX),
-        year -> "§b" + StringUtility.ntify(year) + " Election Booth Opens",
+        year -> Text.of("<b>{} Election Booth Opens", StringUtility.ntify(year)),
         List.of(
-            "§7The Mayor Election voting booth",
-            "§7is now open! Cast your vote for",
-            "§7your favorite candidate."
+            Text.of("<7>The Mayor Election voting booth"),
+            Text.of("<7>is now open! Cast your vote for"),
+            Text.of("<7>your favorite candidate.")
         ),
         List.of(5 * MONTH),
         Duration.ofHours(0),
@@ -128,10 +129,10 @@ public record CalendarEvent(
     public static CalendarEvent ELECTION_CLOSE = new CalendarEvent(
         "election_close",
         ItemStack.of(Material.JUKEBOX),
-        year -> "§b" + StringUtility.ntify(year) + " Election Over!",
+        year -> Text.of("<b>{} Election Over!", StringUtility.ntify(year)),
         List.of(
-            "§7The Mayor Election has concluded!",
-            "§7A new Mayor has been elected."
+            Text.of("<7>The Mayor Election has concluded!"),
+            Text.of("<7>A new Mayor has been elected.")
         ),
         List.of(8 * MONTH),
         Duration.ofHours(0),
@@ -148,7 +149,7 @@ public record CalendarEvent(
         registerEvent(ELECTION_CLOSE);
     }
 
-    public String getDisplayName(int year) {
+    public Text getDisplayName(int year) {
         return displayName.apply(year);
     }
 

@@ -25,18 +25,18 @@ public class ForceStartCommand extends HypixelCommand {
 
             SkywarsGame game = TypeSkywarsGameLoader.getPlayerGame(player);
             if (game == null) {
-                player.sendMessage("§cYou are not in a game!");
+                player.sendMessage("<c>You are not in a game!");
                 return;
             }
 
             if (game.getGameStatus() != SkywarsGameStatus.WAITING &&
                     game.getGameStatus() != SkywarsGameStatus.STARTING) {
-                player.sendMessage("§cThe game has already started!");
+                player.sendMessage("<c>The game has already started!");
                 return;
             }
 
             game.forceStart(5);
-            player.sendMessage("§aForce starting the game in 5 seconds!");
+            player.sendMessage("<a>Force starting the game in 5 seconds!");
         });
 
         var secondsArg = ArgumentType.Integer("seconds").min(1).max(60);
@@ -46,19 +46,19 @@ public class ForceStartCommand extends HypixelCommand {
 
             SkywarsGame game = TypeSkywarsGameLoader.getPlayerGame(player);
             if (game == null) {
-                player.sendMessage("§cYou are not in a game!");
+                player.sendMessage("<c>You are not in a game!");
                 return;
             }
 
             if (game.getGameStatus() != SkywarsGameStatus.WAITING &&
                     game.getGameStatus() != SkywarsGameStatus.STARTING) {
-                player.sendMessage("§cThe game has already started!");
+                player.sendMessage("<c>The game has already started!");
                 return;
             }
 
             int seconds = context.get(secondsArg);
             game.forceStart(seconds);
-            player.sendMessage("§aForce starting the game in " + seconds + " seconds!");
+            player.sendMessage("<a>Force starting the game in {} seconds!", seconds);
         }, secondsArg);
     }
 }

@@ -16,8 +16,11 @@ import net.minestom.server.inventory.click.Click;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.gui.v2.context.ClickContext;
 import net.swofty.type.generic.gui.v2.context.ViewContext;
+import net.swofty.type.generic.text.HypixelTextRenderer;
+import net.swofty.type.generic.text.RenderContext;
 import net.swofty.type.generic.user.HypixelPlayer;
 import org.jspecify.annotations.NonNull;
 
@@ -250,8 +253,7 @@ public final class ViewSession<S> {
             layoutDirty = false;
             componentSlots.clear();
 
-            BiFunction<S, ViewContext, Component> titleFunction = config.getTitleFunction();
-            inventory.setTitle(titleFunction.apply(state, context));
+            inventory.setTitle(renderedTitle(config));
 
             cachedLayout.components().forEach((slot, component) -> {
                 if (component.behavior() == SlotBehavior.EDITABLE) {
@@ -271,8 +273,7 @@ public final class ViewSession<S> {
 
         componentSlots.clear();
 
-        BiFunction<S, ViewContext, Component> titleFunction = config.getTitleFunction();
-        inventory.setTitle(titleFunction.apply(state, context));
+        inventory.setTitle(renderedTitle(config));
 
         cachedLayout.components().forEach((slot, component) -> {
             if (component.behavior() == SlotBehavior.EDITABLE) {
@@ -290,7 +291,7 @@ public final class ViewSession<S> {
             ItemStack contextItem = sharedContext.getSlotItem(slot);
             if (!initializedEditableSlots.contains(slot)) {
                 if (contextItem.isAir()) {
-                    ItemStack initialItem = component.render().apply(state, context).build();
+                    ItemStack initialItem = materialize(component);
                     if (!initialItem.isAir()) {
                         inventory.setItemStack(slot, initialItem);
                         sharedContext.setSlotItem(slot, initialItem);
@@ -307,7 +308,7 @@ public final class ViewSession<S> {
             if (!initializedEditableSlots.contains(slot)) {
                 ItemStack currentItem = inventory.getItemStack(slot);
                 if (currentItem.isAir()) {
-                    ItemStack initialItem = component.render().apply(state, context).build();
+                    ItemStack initialItem = materialize(component);
                     if (!initialItem.isAir()) {
                         inventory.setItemStack(slot, initialItem);
                         currentItem = initialItem;
@@ -322,8 +323,19 @@ public final class ViewSession<S> {
         }
     }
 
+    private Component renderedTitle(ViewConfiguration<S> config) {
+        BiFunction<S, ViewContext, Text> titleFunction = config.getTitleFunction();
+        return HypixelTextRenderer.render(titleFunction.apply(state, context).asComponent(),
+                RenderContext.of(context.player()));
+    }
+
+    private ItemStack materialize(ViewComponent<S> component) {
+        return HypixelTextRenderer.renderStack(component.render().apply(state, context).build(),
+                RenderContext.of(context.player()));
+    }
+
     private void renderSlot(int slot, ViewComponent<S> component) {
-        ItemStack item = component.render().apply(state, context).build();
+        ItemStack item = materialize(component);
         if (!inventory.getItemStack(slot).equals(item)) {
             inventory.setItemStack(slot, item);
         }

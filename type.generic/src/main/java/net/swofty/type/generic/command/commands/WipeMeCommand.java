@@ -21,7 +21,7 @@ public class WipeMeCommand extends HypixelCommand {
             if (!permissionCheck(sender)) return;
 
             HypixelPlayer player = (HypixelPlayer) sender;
-            player.kick("§cYou have been wiped");
+            player.kick("<c>You have been wiped");
 
             ScheduleUtility.delay(() -> {
                 UserDatabase database = new UserDatabase(player.getUuid());

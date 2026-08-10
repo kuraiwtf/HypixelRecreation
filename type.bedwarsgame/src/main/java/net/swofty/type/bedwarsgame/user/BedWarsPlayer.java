@@ -22,7 +22,6 @@ import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.TimedPotion;
-import net.minestom.server.scoreboard.BelowNameTag;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.chunk.ChunkCache;
 import net.minestom.server.utils.chunk.ChunkUtils;
@@ -98,7 +97,7 @@ public class BedWarsPlayer extends HypixelPlayer implements CombatPlayer, GamePa
 
 	public void updateBelowTag() {
 		if (belowNameTag == null)
-			setBelowNameTag(new BelowNameTag("health", Component.text("§c❤")));
+			setBelowNameTag("health", "<c>❤");
 		int health = (int) (getHealth() + getAdditionalHearts());
 		belowNameTag.updateScore(this, health);
 
@@ -197,7 +196,7 @@ public class BedWarsPlayer extends HypixelPlayer implements CombatPlayer, GamePa
 	public void xp(ExperienceCause cause) {
 		xpThisGame += cause.getExperience();
 
-		sendMessage("§b+" + cause.getExperience() + " Bed Wars XP (" + cause.getFormattedName() + ")");
+		sendMessage("<b>+{} Bed Wars XP ({})", cause.getExperience(), cause.getFormattedName());
 		DatapointLeaderboardLong dp = getBedWarsDataHandler().get(BedWarsDataHandler.Data.EXPERIENCE, DatapointLeaderboardLong.class);
 		dp.setValue(dp.getValue() + cause.getExperience());
 
@@ -209,7 +208,7 @@ public class BedWarsPlayer extends HypixelPlayer implements CombatPlayer, GamePa
 		long amount = cause.calculateXp(units);
 		xpThisGame += amount;
 
-		sendMessage("§b+" + amount + " Bed Wars XP (" + cause.getFormattedName() + ")");
+		sendMessage("<b>+{} Bed Wars XP ({})", amount, cause.getFormattedName());
 		DatapointLeaderboardLong dp = getBedWarsDataHandler().get(BedWarsDataHandler.Data.EXPERIENCE, DatapointLeaderboardLong.class);
 		dp.setValue(dp.getValue() + amount);
 
@@ -219,14 +218,14 @@ public class BedWarsPlayer extends HypixelPlayer implements CombatPlayer, GamePa
 
 	public void hypixelXp(long amount) {
 		hypixelXpThisGame += amount;
-		sendMessage("§b+" + amount + " Hypixel Experience");
+		sendMessage("<b>+{} Hypixel Experience", amount);
 		DatapointHypixelExperience dp = getDataHandler().get(HypixelDataHandler.Data.HYPIXEL_EXPERIENCE, DatapointHypixelExperience.class);
 		dp.setValue(dp.getValue() + amount);
 	}
 
 	public void token(TokenCause cause) {
 		tokensThisGame += cause.getExperience();
-		sendMessage("§2+" + cause.getExperience() + " Tokens (" + cause.getFormattedName() + ")");
+		sendMessage("<2>+{} Tokens ({})", cause.getExperience(), cause.getFormattedName());
 		DatapointLeaderboardLong dp = getBedWarsDataHandler().get(BedWarsDataHandler.Data.TOKENS, DatapointLeaderboardLong.class);
 		dp.setValue(dp.getValue() + cause.getExperience());
 	}

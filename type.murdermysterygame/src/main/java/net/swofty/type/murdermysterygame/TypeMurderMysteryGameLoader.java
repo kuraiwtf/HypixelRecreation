@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.hollowcube.polar.PolarLoader;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Pos;
@@ -24,6 +22,7 @@ import net.swofty.commons.ServerType;
 import net.swofty.commons.ServiceType;
 import net.swofty.commons.murdermystery.MurderMysteryGameType;
 import net.swofty.commons.murdermystery.map.MurderMysteryMapsConfig;
+import net.swofty.commons.text.Text;
 import net.swofty.commons.protocol.objects.orchestrator.GameHeartbeatProtocol;
 import net.swofty.proxyapi.ProxyService;
 import net.swofty.commons.redis.RedisMessageHandler;
@@ -105,17 +104,16 @@ public class TypeMurderMysteryGameLoader implements HypixelTypeLoader {
         return game;
     }
 
-    private static Component header() {
-        return MiniMessage.miniMessage().deserialize("<aqua>You are playing on <bold><yellow>MC.HYPIXEL.NET</yellow></bold>");
+    private static Text header() {
+        return Text.of("<b>You are playing on <l><e>MC.HYPIXEL.NET");
     }
 
-    private static Component footer(HypixelPlayer player) {
-        Component start = Component.empty();
+    private static Text footer(HypixelPlayer player) {
+        Text store = Text.of("<a>Ranks, Boosters & MORE! <c><l>STORE.HYPIXEL.NET");
         if (TypeMurderMysteryGameLoader.getPlayerGame(player) != null) {
-            start = start.append(MiniMessage.miniMessage().deserialize("<red>Role: <yellow>??? <red>Kills: <yellow>0")).appendNewline();
+            return Text.of("<c>Role: <e>??? <c>Kills: <e>0\n").append(store);
         }
-        return start
-                .append(Component.text("§aRanks, Boosters & MORE! §c§lSTORE.HYPIXEL.NET"));
+        return store;
     }
 
     @Override

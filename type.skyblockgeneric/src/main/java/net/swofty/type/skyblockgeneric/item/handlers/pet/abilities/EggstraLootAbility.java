@@ -40,9 +40,9 @@ public final class EggstraLootAbility implements PetAbility {
         double chance = CHANCE_PER_LEVEL.getForRarity(rarity) * level;
 
         return Arrays.asList(
-                "§7Chickens always drop an §fEgg §7when",
-                "§7killed. Grants a §a" + decimalify(chance, 1) + "% §7chance for",
-                "§7animals to drop an additional item."
+                "<7>Chickens always drop an <f>Egg <7>when",
+                "<7>killed. Grants a <a>" + decimalify(chance, 1) + "% <7>chance for",
+                "<7>animals to drop an additional item."
         );
     }
 

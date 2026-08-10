@@ -25,7 +25,7 @@ public class CoinsCommand extends HypixelCommand {
 
             player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.COINS, DatapointDouble.class).setValue(context.get(doubleArgument));
 
-            sender.sendMessage("§aSuccessfully set coins to to §e" + context.getRaw(doubleArgument) + "§a.");
+            player.sendMessage("<a>Successfully set coins to to <e>{}<a>.", context.getRaw(doubleArgument));
         }, doubleArgument);
     }
 }

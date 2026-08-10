@@ -1,6 +1,5 @@
 package net.swofty.type.skyblockgeneric.gui.inventories.banker;
 
-import net.kyori.adventure.text.Component;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.Inventory;
@@ -8,12 +7,11 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.swofty.commons.StringUtility;
+import net.swofty.commons.text.Text;
 import net.swofty.type.generic.gui.inventory.HypixelInventoryGUI;
-import net.swofty.type.generic.gui.inventory.ItemStackCreator;
-import net.swofty.type.generic.gui.inventory.TranslatableItemStackCreator;
+import net.swofty.type.generic.gui.inventory.ItemStacks;
 import net.swofty.type.generic.gui.inventory.item.GUIClickableItem;
 import net.swofty.type.generic.gui.inventory.item.GUIQueryItem;
-import net.swofty.type.generic.i18n.I18n;
 import net.swofty.type.generic.user.HypixelPlayer;
 import net.swofty.type.skyblockgeneric.data.DataMutexService;
 import net.swofty.type.skyblockgeneric.data.SkyBlockDataHandler;
@@ -23,33 +21,32 @@ import net.swofty.type.skyblockgeneric.mission.missions.MissionDepositCoinsInBan
 import net.swofty.type.skyblockgeneric.user.SkyBlockPlayer;
 
 import java.util.List;
-import java.util.Locale;
 
 public class GUIBankerDeposit extends HypixelInventoryGUI {
 
     public GUIBankerDeposit() {
-        super(I18n.t("gui_banker.deposit.title"), InventoryType.CHEST_4_ROW);
+        super(Text.key("gui_banker.deposit.title"), InventoryType.CHEST_4_ROW);
     }
 
     @Override
     public void setItems(InventoryGUIOpenEvent e) {
-        fill(ItemStackCreator.createNamedItemStack(Material.BLACK_STAINED_GLASS_PANE));
+        fill(ItemStacks.named(Material.BLACK_STAINED_GLASS_PANE, ""));
         set(GUIClickableItem.getGoBackItem(31, new GUIBanker()));
 
         set(new GUIClickableItem(11) {
             @Override
             public ItemStack.Builder getItem(HypixelPlayer p) {
                 SkyBlockPlayer player = (SkyBlockPlayer) p;
-                Locale l = p.getLocale();
-                return TranslatableItemStackCreator.getStack("gui_banker.deposit.whole_purse", Material.CHEST, 64,
+                return ItemStacks.item(Material.CHEST, 64,
+                        Text.key("gui_banker.deposit.whole_purse"),
                         List.of(
-                                I18n.string("gui_banker.deposit.whole_purse_subtitle", l),
-                                " ",
-                            I18n.string("gui_banker.deposit.current_balance", l, Component.text(StringUtility.decimalify(
-                                player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue().getAmount(), 1))),
-                            I18n.string("gui_banker.deposit.amount_to_deposit", l, Component.text(StringUtility.decimalify(player.getCoins(), 1))),
-                                " ",
-                                I18n.string("gui_banker.deposit.click", l)
+                                Text.key("gui_banker.deposit.whole_purse_subtitle"),
+                                Text.literal(" "),
+                            Text.key("gui_banker.deposit.current_balance", StringUtility.decimalify(
+                                player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue().getAmount(), 1)),
+                            Text.key("gui_banker.deposit.amount_to_deposit", StringUtility.decimalify(player.getCoins(), 1)),
+                                Text.literal(" "),
+                                Text.key("gui_banker.deposit.click")
                         ));
             }
 
@@ -65,16 +62,16 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
             @Override
             public ItemStack.Builder getItem(HypixelPlayer p) {
                 SkyBlockPlayer player = (SkyBlockPlayer) p;
-                Locale l = p.getLocale();
-                return TranslatableItemStackCreator.getStack("gui_banker.deposit.half_purse", Material.CHEST, 32,
+                return ItemStacks.item(Material.CHEST, 32,
+                        Text.key("gui_banker.deposit.half_purse"),
                         List.of(
-                                I18n.string("gui_banker.deposit.whole_purse_subtitle", l),
-                                " ",
-                            I18n.string("gui_banker.deposit.current_balance", l, Component.text(StringUtility.decimalify(
-                                player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue().getAmount(), 1))),
-                            I18n.string("gui_banker.deposit.amount_to_deposit", l, Component.text(StringUtility.decimalify(player.getCoins() / 2, 1))),
-                                " ",
-                                I18n.string("gui_banker.deposit.click", l)
+                                Text.key("gui_banker.deposit.whole_purse_subtitle"),
+                                Text.literal(" "),
+                            Text.key("gui_banker.deposit.current_balance", StringUtility.decimalify(
+                                player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue().getAmount(), 1)),
+                            Text.key("gui_banker.deposit.amount_to_deposit", StringUtility.decimalify(player.getCoins() / 2, 1)),
+                                Text.literal(" "),
+                                Text.key("gui_banker.deposit.click")
                         ));
             }
 
@@ -90,22 +87,21 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
             @Override
             public HypixelInventoryGUI onQueryFinish(String query, HypixelPlayer p) {
                 SkyBlockPlayer player = (SkyBlockPlayer) p;
-                Locale l = p.getLocale();
                 try {
                     double amount = Double.parseDouble(query);
                     if (amount > player.getCoins()) {
-                        player.sendMessage(I18n.t("gui_banker.deposit.not_enough_coins"));
+                        player.sendMessage(Text.key("gui_banker.deposit.not_enough_coins"));
                         return null;
                     }
                     if (amount <= 0) {
-                        player.sendMessage(I18n.t("gui_banker.deposit.invalid_amount"));
+                        player.sendMessage(Text.key("gui_banker.deposit.invalid_amount"));
                         return null;
                     }
 
                     player.closeInventory();
                     attemptDeposit(player, amount);
                 } catch (NumberFormatException ex) {
-                    player.sendMessage(I18n.t("gui_banker.deposit.invalid_number"));
+                    player.sendMessage(Text.key("gui_banker.deposit.invalid_number"));
                 }
                 return null;
             }
@@ -113,16 +109,16 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
             @Override
             public ItemStack.Builder getItem(HypixelPlayer p) {
                 SkyBlockPlayer player = (SkyBlockPlayer) p;
-                Locale l = p.getLocale();
-                return TranslatableItemStackCreator.getStack("gui_banker.deposit.custom_amount", Material.OAK_SIGN, 1,
+                return ItemStacks.item(Material.OAK_SIGN, 1,
+                        Text.key("gui_banker.deposit.custom_amount"),
                         List.of(
-                                I18n.string("gui_banker.deposit.whole_purse_subtitle", l),
-                                " ",
-                            I18n.string("gui_banker.deposit.current_balance", l, Component.text(StringUtility.decimalify(
-                                player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue().getAmount(), 1))),
-                                I18n.string("gui_banker.deposit.custom_amount_label", l),
-                                " ",
-                                I18n.string("gui_banker.deposit.click", l)
+                                Text.key("gui_banker.deposit.whole_purse_subtitle"),
+                                Text.literal(" "),
+                            Text.key("gui_banker.deposit.current_balance", StringUtility.decimalify(
+                                player.getSkyblockDataHandler().get(SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue().getAmount(), 1)),
+                                Text.key("gui_banker.deposit.custom_amount_label"),
+                                Text.literal(" "),
+                                Text.key("gui_banker.deposit.click")
                         ));
             }
         });
@@ -141,17 +137,16 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
     }
 
     private void attemptDeposit(SkyBlockPlayer player, double amount) {
-        Locale l = player.getLocale();
         if (player.getMissionData().isCurrentlyActive(MissionDepositCoinsInBank.class)) {
             player.getMissionData().endMission(MissionDepositCoinsInBank.class);
         }
         DatapointBankData.BankData bankData = player.getSkyblockDataHandler().get(net.swofty.type.skyblockgeneric.data.SkyBlockDataHandler.Data.BANK_DATA, DatapointBankData.class).getValue();
         if (bankData.getAmount() + amount > bankData.getBalanceLimit()) {
-            player.sendMessage(I18n.string("gui_banker.deposit.exceed_limit", l, Component.text(StringUtility.commaify(bankData.getBalanceLimit()))));
+            player.sendMessage(Text.key("gui_banker.deposit.exceed_limit", StringUtility.commaify(bankData.getBalanceLimit())));
             return;
         }
 
-        player.sendMessage(I18n.t("gui_banker.deposit.depositing"));
+        player.sendMessage(Text.key("gui_banker.deposit.depositing"));
         player.removeCoins(amount);
         if (!player.isCoop()) {
             bankData.addAmount(amount);
@@ -161,7 +156,7 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
                     player.getUsername()
             ));
 
-            player.sendMessage(I18n.string("gui_banker.deposit.success", l, Component.text(StringUtility.decimalify(amount, 1)), Component.text(StringUtility.decimalify(bankData.getAmount(), 1))));
+            player.sendMessage(Text.key("gui_banker.deposit.success", StringUtility.decimalify(amount, 1), StringUtility.decimalify(bankData.getAmount(), 1)));
             return;
         }
         CoopDatabase.Coop coop = player.getCoop();
@@ -176,7 +171,7 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
                 SkyBlockDataHandler.Data.BANK_DATA,
                 (DatapointBankData.BankData latestBankData) -> {
                     if (latestBankData.getAmount() + amount > latestBankData.getBalanceLimit()) {
-                        player.sendMessage(I18n.string("gui_banker.deposit.exceed_limit", l, Component.text(StringUtility.commaify(latestBankData.getBalanceLimit()))));
+                        player.sendMessage(Text.key("gui_banker.deposit.exceed_limit", StringUtility.commaify(latestBankData.getBalanceLimit())));
                         return null;
                     }
 
@@ -185,12 +180,12 @@ public class GUIBankerDeposit extends HypixelInventoryGUI {
                     latestBankData.addTransaction(new DatapointBankData.Transaction(
                             System.currentTimeMillis(), amount, player.getUsername()));
 
-                    player.sendMessage(I18n.string("gui_banker.deposit.success", l, Component.text(StringUtility.decimalify(amount, 1)), Component.text(StringUtility.decimalify(latestBankData.getAmount(), 1))));
+                    player.sendMessage(Text.key("gui_banker.deposit.success", StringUtility.decimalify(amount, 1), StringUtility.decimalify(latestBankData.getAmount(), 1)));
 
                     return latestBankData;
                 },
                 () -> {
-                    player.sendMessage(I18n.t("gui_banker.deposit.coop_busy"));
+                    player.sendMessage(Text.key("gui_banker.deposit.coop_busy"));
                 }
         );
     }

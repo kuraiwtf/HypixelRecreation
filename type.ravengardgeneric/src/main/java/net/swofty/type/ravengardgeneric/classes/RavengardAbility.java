@@ -1,7 +1,11 @@
 package net.swofty.type.ravengardgeneric.classes;
 
 import lombok.Getter;
+import net.swofty.commons.text.Text;
 import net.swofty.type.ravengardgeneric.gui.RavengardSprite;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public enum RavengardAbility implements RavengardSprite {
@@ -123,14 +127,15 @@ public enum RavengardAbility implements RavengardSprite {
      * percentages green, HP amounts red, durations yellow. Inferred from the captured War Cry,
      * Cool Off, Shadows and Heal Wounds tooltips, which agree on all three.
      */
-    public String[] getHighlightedDescription() {
-        String[] lines = new String[description.length];
-        for (int index = 0; index < description.length; index++) {
-            lines[index] = "§7" + description[index]
-                    .replaceAll("([+-]?\\d+(?:\\.\\d+)? ?HP)", "§c$1§7")
-                    .replaceAll("(\\d+(?:\\.\\d+)?%)", "§a$1§7")
-                    .replaceAll("(\\d+ seconds?)", "§e$1§7")
-                    .replaceAll("(\\d+(?:-block| blocks?))", "§a$1§7");
+    public List<Text> getHighlightedDescription() {
+        List<Text> lines = new ArrayList<>(description.length);
+        for (String line : description) {
+            String highlighted = line
+                    .replaceAll("([+-]?\\d+(?:\\.\\d+)? ?HP)", "<c>$1</c>")
+                    .replaceAll("(\\d+(?:\\.\\d+)?%)", "<a>$1</a>")
+                    .replaceAll("(\\d+ seconds?)", "<e>$1</e>")
+                    .replaceAll("(\\d+(?:-block| blocks?))", "<a>$1</a>");
+            lines.add(Text.of("<7>" + highlighted));
         }
         return lines;
     }
@@ -157,31 +162,9 @@ public enum RavengardAbility implements RavengardSprite {
      * The highlighted description wrapped the way the captured tooltips wrap, roughly
      * thirty-six visible characters to a line, each continuation reopening in gray.
      */
-    public String[] getWrappedDescription() {
-        java.util.List<String> lines = new java.util.ArrayList<>();
-        for (String highlighted : getHighlightedDescription()) {
-            StringBuilder current = new StringBuilder();
-            int visible = 0;
-            for (String word : highlighted.split(" ")) {
-                int wordVisible = word.replaceAll("\u00a7.", "").length();
-                if (visible > 0 && visible + 1 + wordVisible > 36) {
-                    lines.add(current.toString());
-                    current = new StringBuilder("\u00a77").append(word);
-                    visible = wordVisible;
-                    continue;
-                }
-                if (visible > 0) {
-                    current.append(' ');
-                    visible++;
-                }
-                current.append(word);
-                visible += wordVisible;
-            }
-            if (!current.isEmpty()) {
-                lines.add(current.toString());
-            }
-        }
-        return lines.toArray(new String[0]);
+    public List<Text> getWrappedDescription() {
+        Text joined = Text.join(Text.literal("\n"), getHighlightedDescription());
+        return Text.of("<wrap:36>{}</wrap>", joined).lines();
     }
 
     public int getCooldownTicks() {
